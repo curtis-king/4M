@@ -38,6 +38,8 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">NIU *</label>
                             <input type="text" name="niu" value="{{ old('niu', $settings->niu) }}" required
+                                maxlength="17" pattern="[MP][A-Za-z0-9]{15,16}" inputmode="text"
+                                oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
                                 class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm text-sm">
                         </div>
                         <div>

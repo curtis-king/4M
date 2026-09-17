@@ -107,6 +107,8 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">NIU <span x-show="recipientType !== 'individual'" class="text-red-400">*</span></label>
                                 <input type="text" name="niu" value="{{ old('niu', $client->niu) }}" :required="recipientType !== 'individual'"
+                                    maxlength="17" pattern="[MP][A-Za-z0-9]{15,16}" inputmode="text"
+                                    oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
                                     class="block w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
                             <div>

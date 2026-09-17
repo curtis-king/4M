@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CompanySetting;
+use App\Rules\NiuRule;
 use Illuminate\Http\Request;
 
 class CompanySettingController extends Controller
@@ -18,7 +19,7 @@ class CompanySettingController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'niu' => 'required|string|max:50',
+            'niu' => ['required', 'string', new NiuRule],
             'logo' => 'nullable|string|max:500',
             'address' => 'required|string',
             'phone' => 'required|string|max:50',

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CompanySettingController;
+use App\Http\Controllers\DevisController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InsurerController;
 use App\Http\Controllers\PaymentController;
@@ -78,6 +79,21 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('status');
         Route::post('/{invoice}/certify', [InvoiceController::class, 'certify'])->name('certify');
         Route::get('/api/client/{client}', [InvoiceController::class, 'apiClientData'])->name('api.client');
+    });
+
+    // Devis
+    Route::middleware('role:admin,editor')->prefix('devis')->name('devis.')->group(function () {
+        Route::get('/', [DevisController::class, 'index'])->name('index');
+        Route::get('/create', [DevisController::class, 'create'])->name('create');
+        Route::post('/', [DevisController::class, 'store'])->name('store');
+        Route::get('/{devis}', [DevisController::class, 'show'])->name('show');
+        Route::get('/{devis}/edit', [DevisController::class, 'edit'])->name('edit');
+        Route::put('/{devis}', [DevisController::class, 'update'])->name('update');
+        Route::delete('/{devis}', [DevisController::class, 'destroy'])->name('destroy');
+        Route::get('/{devis}/print', [DevisController::class, 'print'])->name('print');
+        Route::patch('/{devis}/status', [DevisController::class, 'updateStatus'])->name('status');
+        Route::post('/{devis}/convert', [DevisController::class, 'convert'])->name('convert');
+        Route::get('/api/client/{client}', [DevisController::class, 'apiClientData'])->name('api.client');
     });
 
     // Paiements (nested under invoice)

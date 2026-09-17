@@ -24,6 +24,11 @@ class CompanySetting extends Model
         'sfec_environment',
     ];
 
+    public function setNiuAttribute($value): void
+    {
+        $this->attributes['niu'] = $value === null ? null : strtoupper(trim((string) $value));
+    }
+
     public static function instance(): static
     {
         return static::firstOrCreate([], [
