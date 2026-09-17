@@ -40,35 +40,62 @@ class RolesAndPermissionsSeeder extends Seeder
             'delete visit',
             'manage services',
             'manage reagents',
+            'manage insurers',
             'manage settings',
         ];
 
         foreach ($permissions as $perm) {
-            Permission::create(['name' => $perm, 'guard_name' => $guard]);
+            Permission::firstOrCreate(['name' => $perm, 'guard_name' => $guard]);
         }
 
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $admin = Role::create(['name' => 'admin', 'guard_name' => $guard]);
-        $admin->givePermissionTo($permissions);
+        // Directeur : acces total (equivalent admin)
+        $directeur = Role::firstOrCreate(['name' => 'directeur', 'guard_name' => $guard]);
+        $directeur->syncPermissions($permissions);
 
-        $editor = Role::create(['name' => 'editor', 'guard_name' => $guard]);
-        $editor->givePermissionTo([
+        // Partenaire (actionnaire) : lecture seule globale, aucune modification
+        $partenaire = Role::firstOrCreate(['name' => 'partenaire', 'guard_name' => $guard]);
+        $partenaire->syncPermissions([
             'view dashboard',
-            'view clients', 'create client', 'edit client', 'delete client',
-            'view invoices', 'create invoice', 'edit invoice', 'delete invoice',
-            'manage payments', 'print invoice',
-            'view visits', 'create visit', 'edit visit', 'delete visit',
-            'manage services', 'manage reagents',
+            'view clients',
+            'view invoices',
+            'view visits',
         ]);
 
-        $user = Role::create(['name' => 'user', 'guard_name' => $guard]);
-        $user->givePermissionTo(['view dashboard']);
+        // Comptable : facturation, paiements, contrats d'assurance
+        $comptable = Role::firstOrCreate(['name' => 'comptable', 'guard_name' => $guard]);
+        $comptable->syncPermissions([
+            'view dashboard',
+            'view clients',
+            'view invoices', 'create invoice', 'edit invoice',
+            'manage payments', 'print invoice',
+            'manage insurers',
+            'view visits',
+        ]);
 
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
-        ])->assignRole('admin');
+        // Agent labo (technicien + medecin) : visites, resultats, stock de reactifs
+        $agentLabo = Role::firstOrCreate(['name' => 'agent_labo', 'guard_name' => $guard]);
+        $agentLabo->syncPermissions([
+            'view dashboard',
+            'view clients',
+            'view visits', 'create visit', 'edit visit', 'delete visit',
+            'manage reagents',
+        ]);
+
+        // Receptionniste (accueil + commercial) : clients, prise de rdv, contrats
+        $receptionniste = Role::firstOrCreate(['name' => 'receptionniste', 'guard_name' => $guard]);
+        $receptionniste->syncPermissions([
+            'view dashboard',
+            'view clients', 'create client', 'edit client',
+            'manage insurers',
+            'view invoices', 'create invoice',
+            'view visits', 'create visit', 'edit visit',
+        ]);
+
+        User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            ['name' => 'Admin', 'password' => bcrypt('password')]
+        )->syncRoles(['directeur']);
     }
 }

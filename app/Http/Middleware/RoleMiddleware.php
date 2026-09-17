@@ -12,7 +12,7 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         if (! $request->user() || ! $request->user()->hasAnyRole($roles)) {
-            throw UnauthorizedException::forRole($roles);
+            throw UnauthorizedException::forRoles($roles);
         }
 
         return $next($request);

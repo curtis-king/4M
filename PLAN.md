@@ -5,7 +5,7 @@
 - **Type** : Laboratoire medical/clinique — Republique du Congo
 - **Framework** : Laravel 13 + Breeze (Blade) + Tailwind + Alpine.js
 - **Permissions** : Spatie Laravel Permission v8.3 (deja installe)
-- **Roles** : admin, editor, user
+- **Roles** : directeur, partenaire, comptable, agent_labo, receptionniste (voir section 11)
 - **Certification** : SFEC (Systeme de Facturation Electronique Certifie) — API REST
 - **Devise** : XAF (Franc CFA)
 
@@ -570,6 +570,18 @@ Route::middleware('auth')->group(function () {
 | `manage settings` | Gerer les parametres |
 | `view dashboard` | Acceder au tableau de bord |
 | `manage users` | Gerer les utilisateurs |
+
+### Matrice roles -> permissions (implementee dans `RolesAndPermissionsSeeder`)
+
+| Role | Perimetre |
+|------|-----------|
+| `directeur` | Acces total (toutes les permissions) |
+| `partenaire` | Actionnaire : lecture seule (`view dashboard`, `view clients`, `view invoices`, `view visits`) |
+| `comptable` | Facturation, paiements, contrats d'assurance (`view/create/edit invoice`, `manage payments`, `print invoice`, `manage insurers`, `view clients`, `view visits`) |
+| `agent_labo` | Technicien + medecin fusionnes : visites et stock (`view/create/edit/delete visit`, `manage reagents`, `view clients`) |
+| `receptionniste` | Accueil + commercial fusionnes : clients, rdv, contrats (`view/create/edit client`, `manage insurers`, `view/create invoice`, `view/create/edit visit`) |
+
+Note : les routes de `routes/web.php` utilisent desormais le middleware `permission:` (granulaire par action) plutot que `role:admin,editor` — les blocs de routes ci-dessus (section 10) sont indicatifs, se referer au fichier reel pour le detail par action.
 
 ---
 
