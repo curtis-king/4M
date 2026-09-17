@@ -3,53 +3,59 @@
 @endphp
 
 @foreach ($statementGroups as $company => $items)
-    <div class="statement-company">
-        <div class="statement-company-title">{{ $company }} <span class="muted">· {{ $items->count() }} prestation{{ $items->count() > 1 ? 's' : '' }}</span></div>
-        <table class="items">
+    <div class="mt-6">
+        <div class="text-xs font-semibold text-gray-500 mb-2">
+            {{ $company }} <span class="text-gray-400 font-normal">· {{ $items->count() }} prestation{{ $items->count() > 1 ? 's' : '' }}</span>
+        </div>
+        <table class="w-full text-sm">
             <thead>
-                <tr>
-                    <th>Assuré</th>
-                    <th>Objet / prestation</th>
-                    <th class="right">Montant complet</th>
-                    <th class="center">Couv.</th>
-                    <th class="right">Part assureur</th>
+                <tr class="border-b-2 border-black">
+                    <th class="text-left font-semibold text-gray-700 pb-2">Assuré</th>
+                    <th class="text-left font-semibold text-gray-700 pb-2">Objet / prestation</th>
+                    <th class="text-right font-semibold text-gray-700 pb-2">Montant complet</th>
+                    <th class="text-center font-semibold text-gray-700 pb-2">Couv.</th>
+                    <th class="text-right font-semibold text-gray-700 pb-2">Part assureur</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-200">
                 @foreach ($items as $item)
+                    @php
+                        $sourceVisit = $item->sourceVisit;
+                        $designations = $sourceVisit?->examLines?->filter(fn ($l) => $l->service?->name);
+                    @endphp
                     <tr>
-                        <td>{{ $item->assured_name ?: '—' }}</td>
-                        <td>
-                            @php
-                                $sourceVisit = $item->sourceVisit;
-                                $designations = $sourceVisit?->examLines?->filter(fn ($l) => $l->service?->name);
-                            @endphp
+                        <td class="py-2 text-gray-800">{{ $item->assured_name ?: '—' }}</td>
+                        <td class="py-2 text-gray-600 text-xs">
                             @if ($sourceVisit?->objet)
-                                <strong>{{ $sourceVisit->objet }}</strong><br>
+                                <div class="font-medium text-gray-800">{{ $sourceVisit->objet }}</div>
                             @endif
                             @if ($designations && $designations->isNotEmpty())
                                 @foreach ($designations as $line)
-                                    {{ $line->service->name }} @if ($line->service->code)<span class="muted">({{ $line->service->code }})</span>@endif @if ((float) $line->quantity > 1)<span class="muted">× {{ number_format((float) $line->quantity, 0, ',', ' ') }}</span>@endif<br>
+                                    <div>
+                                        {{ $line->service->name }}
+                                        @if ($line->service->code)<span class="text-gray-400">({{ $line->service->code }})</span>@endif
+                                        @if ((float) $line->quantity > 1)<span class="text-gray-400">× {{ number_format((float) $line->quantity, 0, ',', ' ') }}</span>@endif
+                                    </div>
                                 @endforeach
                             @else
-                                {{ $item->description }}<br>
+                                <div>{{ $item->description }}</div>
                             @endif
                             @if ($sourceVisit?->id && $sourceVisit->visit_date)
-                                <span class="muted">{{ $sourceVisit->visit_date->format('d/m/Y') }}</span>
+                                <div class="text-gray-400">{{ $sourceVisit->visit_date->format('d/m/Y') }}</div>
                             @endif
                         </td>
-                        <td class="right">{{ number_format($item->net_amount, 0, ',', ' ') }}</td>
-                        <td class="center">{{ $item->coverage_rate !== null ? number_format((float) $item->coverage_rate, 0, ',', ' ').'%' : '—' }}</td>
-                        <td class="right"><strong>{{ number_format($item->insurance_part, 0, ',', ' ') }}</strong></td>
+                        <td class="py-2 text-right text-gray-600">{{ number_format($item->net_amount, 0, ',', ' ') }}</td>
+                        <td class="py-2 text-center text-gray-600">{{ $item->coverage_rate !== null ? number_format((float) $item->coverage_rate, 0, ',', ' ').'%' : '—' }}</td>
+                        <td class="py-2 text-right font-medium text-blue-600">{{ number_format($item->insurance_part, 0, ',', ' ') }}</td>
                     </tr>
                 @endforeach
             </tbody>
             <tfoot>
-                <tr>
-                    <td colspan="2">Sous-total {{ $company }}</td>
-                    <td class="right">{{ number_format($items->sum('net_amount'), 0, ',', ' ') }}</td>
+                <tr class="border-t border-gray-300 font-semibold">
+                    <td colspan="2" class="py-2 text-gray-700">Sous-total {{ $company }}</td>
+                    <td class="py-2 text-right text-gray-900">{{ number_format($items->sum('net_amount'), 0, ',', ' ') }}</td>
                     <td></td>
-                    <td class="right">{{ number_format($items->sum('insurance_part'), 0, ',', ' ') }}</td>
+                    <td class="py-2 text-right text-blue-700">{{ number_format($items->sum('insurance_part'), 0, ',', ' ') }}</td>
                 </tr>
             </tfoot>
         </table>
