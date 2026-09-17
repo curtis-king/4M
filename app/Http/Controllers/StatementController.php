@@ -24,7 +24,9 @@ class StatementController extends Controller
             $selectedInsurer = Insurer::find($request->integer('insurer_id'));
         }
 
-        return view('invoices.statement-create', compact('insurers', 'selectedInsurer', 'insurerDiscounts'));
+        $entrepriseSites = Client::with('sites')->where('type', 'entreprise')->has('sites')->orderBy('name')->get(['id', 'name']);
+
+        return view('invoices.statement-create', compact('insurers', 'selectedInsurer', 'insurerDiscounts', 'entrepriseSites'));
     }
 
     public function options(Request $request)
@@ -58,6 +60,9 @@ class StatementController extends Controller
             'visit_ids' => 'required|array|min:1',
             'visit_ids.*' => 'integer',
             'discount_value' => 'required|numeric|min:0',
+            'subject' => 'nullable|string|max:255',
+            'sample_nature' => 'nullable|string|max:255',
+            'company_site' => 'nullable|string|max:255',
         ]);
 
         $discountValue = (float) $validated['discount_value'];
@@ -70,12 +75,19 @@ class StatementController extends Controller
 
         $insurer = Insurer::findOrFail($validated['insurer_id']);
 
+        $mission = [
+            'subject' => $validated['subject'] ?? null,
+            'sample_nature' => $validated['sample_nature'] ?? null,
+            'company_site' => $validated['company_site'] ?? null,
+        ];
+
         try {
             $invoice = $this->service->create(
                 $insurer,
                 $validated['visit_ids'],
                 $validated['month'],
-                $discountValue
+                $discountValue,
+                $mission
             );
         } catch (\InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage())->withInput();

@@ -136,6 +136,48 @@
                         </template>
                     </div>
 
+                    {{-- Désignation de la mission (facultatif) --}}
+                    <div class="bg-white shadow-card rounded-2xl p-6">
+                        <div class="flex items-baseline justify-between gap-4 mb-3">
+                            <h4 class="text-sm font-semibold text-gray-700">Désignation de la mission (facultatif)</h4>
+                            <span class="text-xs text-gray-400">Repris dans l'en-tête de la facture</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label for="subject" class="block text-sm font-medium text-gray-700">Objet</label>
+                                <input type="text" name="subject" id="subject" placeholder="Ex. Contrôle périodique des eaux de production"
+                                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                            </div>
+                            <div>
+                                <label for="sample_nature" class="block text-sm font-medium text-gray-700">Nature des échantillons</label>
+                                <input type="text" name="sample_nature" id="sample_nature" placeholder="Ex. Eau, aliment, surface..."
+                                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                            </div>
+                            <div>
+                                <label for="company_site" class="block text-sm font-medium text-gray-700">Site de l'entreprise</label>
+                                <select x-model="companySiteMode" id="company_site"
+                                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                    <option value="">— Aucun / sélectionner —</option>
+                                    @foreach ($entrepriseSites as $entreprise)
+                                        <optgroup label="{{ $entreprise->name }}">
+                                            @foreach ($entreprise->sites as $site)
+                                                <option value="{{ $site->name }}">{{ $site->name }}@if($site->city) · {{ $site->city }} @endif</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endforeach
+                                    <option value="__autre__">Autre (saisie libre)…</option>
+                                </select>
+                                <input type="text" x-show="companySiteMode === '__autre__'" x-model="companySiteOther"
+                                    placeholder="Ex. Usine Bonabéri, siège..."
+                                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                <input type="hidden" name="company_site" :value="companySiteValue">
+                                @if ($entrepriseSites->isEmpty())
+                                    <p class="mt-1 text-xs text-gray-400">Aucun site référencé. Ajoutez-en depuis la fiche entreprise.</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Options & totaux --}}
                     <div class="bg-white shadow-card rounded-2xl p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -210,6 +252,13 @@
                 discountValue: 0,
                 defaultDiscount: 0,
                 loading: false,
+                companySiteMode: '',
+                companySiteOther: '',
+
+                get companySiteValue() {
+                    if (this.companySiteMode === '__autre__') return this.companySiteOther;
+                    return this.companySiteMode;
+                },
 
                 applyDefaultDiscount() {
                     const rate = parseFloat(this.insurerDiscounts[this.insurerId] || 0);

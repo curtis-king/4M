@@ -40,6 +40,11 @@ class Client extends Model
         return $this->hasMany(Agent::class, 'client_id');
     }
 
+    public function sites(): HasMany
+    {
+        return $this->hasMany(ClientSite::class, 'client_id')->orderBy('sort_order')->orderBy('name');
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class, 'client_id');

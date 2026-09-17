@@ -246,7 +246,7 @@ class InvoiceController extends Controller
         $clients = Client::orderBy('name')->get();
         $services = Service::with('category')->where('is_active', true)->orderBy(ServiceCategory::select('sort_order')->whereColumn('service_categories.id', 'services.category_id'))->orderBy('name')->get();
         $serviceOptions = $this->servicePayload($services);
-        $selectedClient = $invoice->client?->load(['insuranceContracts.insurer', 'agents']);
+        $selectedClient = $invoice->client?->load(['insuranceContracts.insurer', 'agents', 'sites']);
 
         return view('invoices.edit', compact('invoice', 'clients', 'services', 'serviceOptions', 'selectedClient'));
     }
@@ -391,7 +391,7 @@ class InvoiceController extends Controller
 
     public function apiClientData(Request $request, Client $client)
     {
-        $client->load(['insuranceContracts.insurer', 'agents']);
+        $client->load(['insuranceContracts.insurer', 'agents', 'sites']);
 
         return response()->json([
             'client' => $client,

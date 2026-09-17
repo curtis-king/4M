@@ -33,7 +33,7 @@
                                     Client <span x-show="!isWalkIn">*</span>
                                 </label>
                                 <button type="button"
-                                    @click="isWalkIn = !isWalkIn; selectedClientId = ''; search = ''; agents = []; contracts = []; selectedContractId = '';"
+                                    @click="isWalkIn = !isWalkIn; selectedClientId = ''; search = ''; agents = []; sites = []; companySiteMode = ''; companySiteOther = ''; contracts = []; selectedContractId = '';"
                                     class="text-xs font-medium text-blue-600 hover:text-blue-800">
                                     <span x-text="isWalkIn ? '← Choisir un client enregistré' : 'Client de passage (sans fiche) →'"></span>
                                 </button>
@@ -158,9 +158,19 @@
                             </div>
                             <div>
                                 <label for="company_site" class="block text-sm font-medium text-gray-700">Site de l'entreprise</label>
-                                <input type="text" name="company_site" id="company_site" value="{{ old('company_site') }}"
+                                <select x-model="companySiteMode" id="company_site"
+                                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+                                    <option value="">— Aucun / sélectionner —</option>
+                                    <template x-for="site in sites" :key="site.id">
+                                        <option :value="site.name" x-text="site.name + (site.city ? ' · ' + site.city : '')"></option>
+                                    </template>
+                                    <option value="__autre__">Autre (saisie libre)…</option>
+                                </select>
+                                <input type="text" x-show="companySiteMode === '__autre__'" x-model="companySiteOther"
                                     placeholder="Ex. Usine Bonabéri, siège..."
                                     class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+                                <input type="hidden" name="company_site" :value="companySiteValue">
+                                <p x-show="sites.length === 0" class="mt-1 text-xs text-gray-400">Aucun site référencé pour ce client. Ajoutez-en depuis la fiche entreprise, ou utilisez « Autre ».</p>
                             </div>
                         </div>
                     </div>
@@ -374,6 +384,9 @@
                 agents: [],
                 contracts: [],
                 selectedContractId: '{{ old('insurance_contract_id') }}',
+                sites: [],
+                companySiteMode: '{{ old('company_site') }}',
+                companySiteOther: '{{ old('company_site') }}',
                 invoiceType: '{{ old('invoice_type', 'standard') }}',
                 serviceOptions: @json($serviceOptions),
                 prestationSearch: '',
@@ -390,6 +403,11 @@
 
                 get selectedContract() {
                     return this.contracts.find(c => c.id == this.selectedContractId) || null;
+                },
+
+                get companySiteValue() {
+                    if (this.companySiteMode === '__autre__') return this.companySiteOther;
+                    return this.companySiteMode;
                 },
 
                 get filteredServices() {
@@ -456,13 +474,18 @@
                     item.net_amount = lineTotal - discount;
                 },
                 loadClientData() {
-                    if (!this.selectedClientId) { this.agents = []; this.contracts = []; this.selectedContractId = ''; return; }
+                    if (!this.selectedClientId) { this.agents = []; this.sites = []; this.contracts = []; this.selectedContractId = ''; return; }
                     fetch(`/invoices/api/client/${this.selectedClientId}`)
                         .then(r => r.json())
                         .then(data => {
                             this.agents = data.client.agents || [];
+                            this.sites = data.client.sites || [];
                             this.contracts = data.client.insurance_contracts || [];
                             this.selectedContractId = data.active_contract ? data.active_contract.id : '';
+                            if (this.companySiteMode && this.companySiteMode !== '__autre__' && !this.sites.some(s => s.name === this.companySiteMode)) {
+                                this.companySiteOther = this.companySiteMode;
+                                this.companySiteMode = '__autre__';
+                            }
                         });
                 },
                 formatNumber(n) {

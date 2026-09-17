@@ -119,7 +119,7 @@ class StatementService
         return $result;
     }
 
-    public function create(Insurer $insurer, array $visitIds, ?string $month, float|int $discountValue): Invoice
+    public function create(Insurer $insurer, array $visitIds, ?string $month, float|int $discountValue, array $mission = []): Invoice
     {
         if (empty($visitIds)) {
             throw new \InvalidArgumentException('Aucune visite sélectionnée.');
@@ -151,7 +151,7 @@ class StatementService
 
         $discountValue = max(0, (float) $discountValue);
 
-        return DB::transaction(function () use ($insurer, $visits, $start, $end, $discountValue) {
+        return DB::transaction(function () use ($insurer, $visits, $start, $end, $discountValue, $mission) {
             $invoice = Invoice::create([
                 'client_id' => $insurer->id,
                 'created_by' => auth()->id() ?? User::first()?->id,
@@ -163,6 +163,9 @@ class StatementService
                 'is_statement' => true,
                 'statement_start_date' => $start,
                 'statement_end_date' => $end,
+                'subject' => $mission['subject'] ?? null,
+                'sample_nature' => $mission['sample_nature'] ?? null,
+                'company_site' => $mission['company_site'] ?? null,
                 'tax_rate' => 0,
                 'discount_type' => $discountValue > 0 ? 'pourcentage' : 'aucun',
                 'discount_value' => $discountValue,

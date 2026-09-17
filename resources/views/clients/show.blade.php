@@ -167,6 +167,11 @@
                             class="pb-3 text-sm font-medium border-b-2 transition">
                             Agents <span class="ml-1 text-xs text-gray-400">{{ $client->agents->count() }}</span>
                         </button>
+                        <button @click="tab = 'sites'"
+                            :class="tab === 'sites' ? 'border-gray-800 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'"
+                            class="pb-3 text-sm font-medium border-b-2 transition">
+                            Sites <span class="ml-1 text-xs text-gray-400">{{ $client->sites->count() }}</span>
+                        </button>
                         <button @click="tab = 'contracts'"
                             :class="tab === 'contracts' ? 'border-gray-800 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'"
                             class="pb-3 text-sm font-medium border-b-2 transition">
@@ -265,6 +270,49 @@
                             <p id="agents-no-match" class="hidden text-sm text-gray-400 text-center py-6">Aucun employé ne correspond à la recherche.</p>
                             @else
                             <p class="text-sm text-gray-400 text-center py-6">Aucun agent.</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Sites --}}
+                    <div x-show="tab === 'sites'" x-cloak>
+                        <div class="bg-white shadow-card rounded-2xl p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-sm font-medium text-gray-700">Sites / établissements</span>
+                                <div x-data="{ open: false }" class="relative">
+                                    <button @click="open = !open" class="text-sm text-gray-800 font-medium hover:text-gray-600">+ Ajouter</button>
+                                    <div x-show="open" x-cloak @click.outside="open = false" class="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-10 text-left">
+                                        <form method="POST" action="{{ route('clients.sites.store', $client) }}" class="space-y-3">
+                                            @csrf
+                                            <input type="text" name="name" placeholder="Nom du site *" required class="block w-full rounded-lg border-gray-300 text-sm">
+                                            <input type="text" name="city" placeholder="Ville (facultatif)" class="block w-full rounded-lg border-gray-300 text-sm">
+                                            <input type="number" min="0" name="sort_order" placeholder="Ordre (facultatif)" class="block w-full rounded-lg border-gray-300 text-sm">
+                                            <div class="flex gap-2 pt-1">
+                                                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white text-sm px-3 py-1.5 rounded-lg">Ajouter</button>
+                                                <button type="button" @click="open = false" class="text-sm text-gray-400 hover:text-gray-600 px-3 py-1.5">Annuler</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if ($client->sites->count())
+                            <div class="divide-y divide-gray-100">
+                                @foreach ($client->sites as $site)
+                                <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $site->name }}</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">{{ $site->city ?: '—' }}</div>
+                                    </div>
+                                    <form method="POST" action="{{ route('clients.sites.destroy', [$client, $site]) }}" onsubmit="return confirm('Supprimer ?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="text-xs text-gray-400 hover:text-red-500">Supprimer</button>
+                                    </form>
+                                </div>
+                                @endforeach
+                            </div>
+                            @else
+                            <p class="text-sm text-gray-400 text-center py-6">Aucun site. Une entreprise peut avoir plusieurs sites (sièges, usines, points de vente...).</p>
                             @endif
                         </div>
                     </div>

@@ -40,6 +40,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/{client}/agents', [ClientController::class, 'storeAgent'])->name('agents.store');
         Route::delete('/{client}/agents/{agent}', [ClientController::class, 'destroyAgent'])->name('agents.destroy');
 
+        // Sites (nested under client)
+        Route::post('/{client}/sites', [ClientController::class, 'storeSite'])->name('sites.store');
+        Route::delete('/{client}/sites/{site}', [ClientController::class, 'destroySite'])->name('sites.destroy');
+
         // Contrats d'assurance (nested under client)
         Route::post('/{client}/contracts', [ClientController::class, 'storeContract'])->name('contracts.store');
         Route::put('/{client}/contracts/{contract}', [ClientController::class, 'updateContract'])->name('contracts.update');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agent;
 use App\Models\Client;
+use App\Models\ClientSite;
 use App\Models\InsuranceContract;
 use App\Models\Insurer;
 use Illuminate\Http\Request;
@@ -94,7 +95,7 @@ class ClientController extends Controller
 
     public function show(Client $client)
     {
-        $client->load(['agents', 'invoices.client', 'insuranceContracts.insurer']);
+        $client->load(['agents', 'sites', 'invoices.client', 'insuranceContracts.insurer']);
         $invoices = $client->invoices()->latest()->paginate(10, ['*'], 'invoices_page');
         $insurers = Insurer::orderBy('name')->get();
 
@@ -166,6 +167,28 @@ class ClientController extends Controller
         $agent->delete();
 
         return redirect()->route('clients.show', $client)->with('success', 'Agent supprimé.');
+    }
+
+    public function storeSite(Request $request, Client $client)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+
+        $validated['sort_order'] = $validated['sort_order'] ?? 0;
+
+        $client->sites()->create($validated);
+
+        return redirect()->route('clients.show', $client)->with('success', 'Site ajouté.');
+    }
+
+    public function destroySite(Client $client, ClientSite $site)
+    {
+        $site->delete();
+
+        return redirect()->route('clients.show', $client)->with('success', 'Site supprimé.');
     }
 
     public function storeContract(Request $request, Client $client)

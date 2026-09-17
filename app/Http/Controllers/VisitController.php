@@ -62,6 +62,7 @@ class VisitController extends Controller
         $validated = $this->validateVisit($request);
 
         $this->normalizeDiscount($validated);
+        $validated['patient_paid'] = (float) ($validated['patient_paid'] ?? 0);
 
         $examItems = $validated['exam_items'] ?? [];
         unset($validated['exam_items']);
@@ -128,6 +129,7 @@ class VisitController extends Controller
         $validated = $this->validateVisit($request);
 
         $this->normalizeDiscount($validated);
+        $validated['patient_paid'] = (float) ($validated['patient_paid'] ?? 0);
 
         $examItems = $validated['exam_items'] ?? [];
         unset($validated['exam_items']);
