@@ -6,6 +6,7 @@ use App\Models\Agent;
 use App\Models\Client;
 use App\Models\InsuranceContract;
 use App\Models\Insurer;
+use App\Rules\NiuRule;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -59,7 +60,7 @@ class ClientController extends Controller
             'company_name' => 'nullable|string|max:255',
             'company_nif' => 'nullable|string|max:50',
             'company_rcs' => 'nullable|string|max:50',
-            'niu' => 'nullable|string|max:20',
+            'niu' => ['nullable', 'string', new NiuRule],
             'rccm' => 'nullable|string|max:50',
             'is_taxable' => 'boolean',
             'contact_name' => 'nullable|string|max:255',
@@ -119,7 +120,7 @@ class ClientController extends Controller
             'company_name' => 'nullable|string|max:255',
             'company_nif' => 'nullable|string|max:50',
             'company_rcs' => 'nullable|string|max:50',
-            'niu' => 'nullable|string|max:20',
+            'niu' => ['nullable', 'string', new NiuRule],
             'rccm' => 'nullable|string|max:50',
             'is_taxable' => 'boolean',
             'contact_name' => 'nullable|string|max:255',

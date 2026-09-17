@@ -70,6 +70,11 @@ class Client extends Model
         return $this->type === 'assureur';
     }
 
+    public function setNiuAttribute($value): void
+    {
+        $this->attributes['niu'] = $value === null ? null : strtoupper(trim((string) $value));
+    }
+
     public function isEntreprise(): bool
     {
         return $this->type === 'entreprise';

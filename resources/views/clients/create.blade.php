@@ -2,7 +2,9 @@
     <x-slot name="header">
         <div class="flex items-center gap-3">
             <a href="{{ route('clients.index') }}" class="text-gray-400 hover:text-gray-600 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
             </a>
             <h2 class="font-semibold text-xl text-gray-900 leading-tight">Nouveau client</h2>
         </div>
@@ -11,11 +13,11 @@
     <div class="py-6">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             @if ($errors->any())
-                <div class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                    <ul class="list-disc list-inside">
-                        @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
-                    </ul>
-                </div>
+            <div class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                <ul class="list-disc list-inside">
+                    @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+                </ul>
+            </div>
             @endif
 
             <form method="POST" action="{{ route('clients.store') }}" x-data="clientForm()" class="space-y-5">
@@ -54,7 +56,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
-                            <input type="text" name="phone" value="{{ old('phone') }}" required placeholder="+242 06 XXX XXXX"
+                            <input type="tel" name="phone" value="{{ old('phone') }}" inputmode="tel" pattern="[0-9+]{8,20}" required placeholder="+242 06 XXX XXXX"
                                 class="block w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>
                         <div>
@@ -67,7 +69,7 @@
                             <select name="city" class="block w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                 <option value="">—</option>
                                 @foreach (['Brazzaville', 'Pointe-Noire', 'Dolisie', 'Nkayi', 'Ouésso', 'Impfondo'] as $c)
-                                    <option value="{{ $c }}" {{ old('city') === $c ? 'selected' : '' }}>{{ $c }}</option>
+                                <option value="{{ $c }}" {{ old('city') === $c ? 'selected' : '' }}>{{ $c }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -109,6 +111,8 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">NIU <span x-show="recipientType !== 'individual'" class="text-red-400">*</span></label>
                                 <input type="text" name="niu" value="{{ old('niu') }}" :required="recipientType !== 'individual'"
+                                    maxlength="17" pattern="[MP][A-Za-z0-9]{15,16}" inputmode="text"
+                                    oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
                                     class="block w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
                             <div>
@@ -147,7 +151,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                                <input type="text" name="contact_phone" value="{{ old('contact_phone') }}"
+                                <input type="tel" name="contact_phone" inputmode="tel" pattern="[0-9+]{8,20}" value="{{ old('contact_phone') }}"
                                     class="block w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
                         </div>
@@ -180,7 +184,7 @@
                                     <select name="assureur_id" class="block w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                         <option value="">—</option>
                                         @foreach ($assureurs as $assureur)
-                                            <option value="{{ $assureur->id }}" @selected(old('assureur_id') == $assureur->id)>{{ $assureur->name }}</option>
+                                        <option value="{{ $assureur->id }}" @selected(old('assureur_id')==$assureur->id)>{{ $assureur->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -198,7 +202,7 @@
                             <select name="entreprise_id" class="block w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                 <option value="">—</option>
                                 @foreach ($entreprises as $entreprise)
-                                    <option value="{{ $entreprise->id }}" @selected(old('entreprise_id') == $entreprise->id)>{{ $entreprise->name }}</option>
+                                <option value="{{ $entreprise->id }}" @selected(old('entreprise_id')==$entreprise->id)>{{ $entreprise->name }}</option>
                                 @endforeach
                             </select>
                             <p class="text-xs text-gray-400 mt-1">Le client sera rattaché comme membre/agent de cette entreprise.</p>
@@ -226,9 +230,15 @@
     <script>
         function clientForm() {
             return {
-                clientType: '{{ old('type', $selectedType ?? 'particulier') }}',
-                recipientType: '{{ old('recipient_type', 'individual') }}',
-                linkType: '{{ old('link_type', '') }}',
+                clientType: '{{ old('
+                type ', $selectedType ?? '
+                particulier ') }}',
+                recipientType: '{{ old('
+                recipient_type ', '
+                individual ') }}',
+                linkType: '{{ old('
+                link_type ', '
+                ') }}',
             }
         }
     </script>

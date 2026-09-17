@@ -186,9 +186,9 @@ class SfecService
             return null;
         }
 
-        $length = strlen($niu);
+        $niu = strtoupper($niu);
 
-        return ($length === 16 || $length === 17) ? $niu : null;
+        return preg_match('/^[MP][A-Z0-9]{15,16}$/', $niu) === 1 ? $niu : null;
     }
 
     protected function normalizePhone($value): ?string
