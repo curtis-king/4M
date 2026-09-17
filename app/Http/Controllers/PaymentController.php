@@ -67,17 +67,15 @@ class PaymentController extends Controller
             ->map(fn ($row) => ['nb' => $row->nb, 'total' => (float) $row->total])
             ->all();
 
-        $monthly = $query->clone()
-            ->selectRaw("DATE_FORMAT(payment_date, '%Y-%m') as month, SUM(amount) as total")
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
+        $monthlyData = $query->clone()
+            ->get(['payment_date', 'amount'])
+            ->groupBy(fn ($payment) => $payment->payment_date->format('Y-m'))
+            ->sortKeys()
+            ->mapWithKeys(function ($group, $month) {
+                $label = Carbon::createFromFormat('Y-m', $month)->locale('fr')->isoFormat('MMM YYYY');
 
-        $monthlyData = $monthly->mapWithKeys(function ($row) {
-            $label = Carbon::createFromFormat('Y-m', $row->month)->locale('fr')->isoFormat('MMM YYYY');
-
-            return [$label => (float) $row->total];
-        });
+                return [$label => (float) $group->sum('amount')];
+            });
 
         $clients = Client::orderBy('name')->get(['id', 'name']);
 
