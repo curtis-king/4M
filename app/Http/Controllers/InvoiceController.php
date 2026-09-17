@@ -145,9 +145,15 @@ class InvoiceController extends Controller
             $query->where('date', '<=', $request->date_to);
         }
 
-        $invoices = $query->latest('date')->paginate(15);
+        $statsQuery = clone $query;
+        $totalFacture = (clone $statsQuery)->sum('total');
+        $totalEncaisse = (clone $statsQuery)->sum('paid_amount');
+        $nbFacturesFiltrees = (clone $statsQuery)->count();
+        $totalRestant = $totalFacture - $totalEncaisse;
 
-        return view('invoices.index', compact('invoices'));
+        $invoices = $query->latest('date')->paginate(15)->appends($request->query());
+
+        return view('invoices.index', compact('invoices', 'totalFacture', 'totalEncaisse', 'totalRestant', 'nbFacturesFiltrees'));
     }
 
     public function create(Request $request)

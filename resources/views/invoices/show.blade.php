@@ -15,12 +15,14 @@
             </h2>
             <div class="flex gap-2">
                 @if ($invoice->status !== 'annulee')
-                    <a href="{{ route('invoices.print', $invoice) }}" target="_blank" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                    <a href="{{ route('invoices.print', $invoice) }}" target="_blank" class="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0M6.34 18l.229 2.523a1.125 1.125 0 001.12 1.227h8.622a1.125 1.125 0 001.12-1.227L17.66 18M6.34 18H4.75A1.75 1.75 0 013 16.25v-4.875c0-1.036.84-1.875 1.875-1.875h14.25A1.875 1.875 0 0121 11.375v4.875A1.75 1.75 0 0119.25 18H17.66M6.34 18h11.32M6.75 7.5V4.875c0-.621.504-1.125 1.125-1.125h8.25c.621 0 1.125.504 1.125 1.125V7.5"/></svg>
                         Imprimer
                     </a>
                 @endif
                 @if ($invoice->status === 'brouillon' && !$invoice->is_statement)
-                    <a href="{{ route('invoices.edit', $invoice) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                    <a href="{{ route('invoices.edit', $invoice) }}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/></svg>
                         Modifier
                     </a>
                 @endif
@@ -31,11 +33,51 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             @if (session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">{{ session('success') }}</div>
+                <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    {{ session('success') }}
+                </div>
             @endif
             @if (session('error'))
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{{ session('error') }}</div>
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                    {{ session('error') }}
+                </div>
             @endif
+
+            {{-- Résumé des montants --}}
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+                <div class="rounded-2xl bg-white p-6 shadow-card">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-4.5-9h18a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5h-18a1.5 1.5 0 01-1.5-1.5v-9a1.5 1.5 0 011.5-1.5z" />
+                        </svg>
+                    </div>
+                    <div class="mt-4 text-2xl font-bold text-gray-900">{{ number_format($invoice->total, 0, ',', ' ') }} <span class="text-sm font-normal text-gray-400">{{ $invoice->currency }}</span></div>
+                    <div class="mt-1 text-sm text-gray-500">{{ $invoice->is_statement ? 'Net à payer' : 'Total TTC' }}</div>
+                </div>
+
+                <div class="rounded-2xl bg-white p-6 shadow-card">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                        </svg>
+                    </div>
+                    <div class="mt-4 text-2xl font-bold text-gray-900">{{ number_format($invoice->paid_amount, 0, ',', ' ') }} <span class="text-sm font-normal text-gray-400">{{ $invoice->currency }}</span></div>
+                    <div class="mt-1 text-sm text-gray-500">Déjà payé</div>
+                    <div class="mt-1 text-xs text-gray-400">{{ $payments->count() }} paiement(s)</div>
+                </div>
+
+                <div class="rounded-2xl bg-white p-6 shadow-card">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl {{ $invoice->amountDue > 0 ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-400' }}">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
+                        </svg>
+                    </div>
+                    <div class="mt-4 text-2xl font-bold {{ $invoice->amountDue > 0 ? 'text-rose-600' : 'text-gray-400' }}">{{ number_format($invoice->amountDue, 0, ',', ' ') }} <span class="text-sm font-normal text-gray-400">{{ $invoice->currency }}</span></div>
+                    <div class="mt-1 text-sm text-gray-500">Reste à payer</div>
+                </div>
+            </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {{-- Sidebar infos --}}
