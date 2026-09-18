@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CompanySettingController;
+use App\Http\Controllers\DevisController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InsurerController;
 use App\Http\Controllers\PaymentController;
@@ -96,6 +97,29 @@ Route::middleware('auth')->group(function () {
             Route::get('/{invoice}/print', [InvoiceController::class, 'print'])->name('print');
             Route::post('/{invoice}/certify', [InvoiceController::class, 'certify'])->name('certify');
         });
+    });
+
+    // Devis
+    Route::middleware('permission:view devis')->prefix('devis')->name('devis.')->group(function () {
+        Route::get('/', [DevisController::class, 'index'])->name('index');
+        Route::get('/api/client/{client}', [DevisController::class, 'apiClientData'])->name('api.client');
+
+        Route::middleware('permission:create devis')->group(function () {
+            Route::get('/create', [DevisController::class, 'create'])->name('create');
+            Route::post('/', [DevisController::class, 'store'])->name('store');
+        });
+
+        Route::middleware('permission:edit devis')->group(function () {
+            Route::get('/{devis}/edit', [DevisController::class, 'edit'])->name('edit');
+            Route::put('/{devis}', [DevisController::class, 'update'])->name('update');
+            Route::patch('/{devis}/status', [DevisController::class, 'updateStatus'])->name('status');
+        });
+
+        Route::get('/{devis}', [DevisController::class, 'show'])->name('show');
+
+        Route::delete('/{devis}', [DevisController::class, 'destroy'])->name('destroy')->middleware('permission:delete devis');
+        Route::get('/{devis}/print', [DevisController::class, 'print'])->name('print')->middleware('permission:print devis');
+        Route::post('/{devis}/convert', [DevisController::class, 'convert'])->name('convert')->middleware('permission:convert devis');
     });
 
     // Paiements (nested under invoice)

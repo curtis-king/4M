@@ -42,6 +42,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage reagents',
             'manage insurers',
             'manage settings',
+            'view devis',
+            'create devis',
+            'edit devis',
+            'delete devis',
+            'print devis',
+            'convert devis',
         ];
 
         foreach ($permissions as $perm) {
@@ -61,6 +67,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view clients',
             'view invoices',
             'view visits',
+            'view devis',
         ]);
 
         // Comptable : facturation, paiements, contrats d'assurance
@@ -72,6 +79,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage payments', 'print invoice',
             'manage insurers',
             'view visits',
+            'view devis',
         ]);
 
         // Agent labo (technicien + medecin) : visites, resultats, stock de reactifs
@@ -83,7 +91,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage reagents',
         ]);
 
-        // Receptionniste (accueil + commercial) : clients, prise de rdv, contrats
+        // Receptionniste (accueil + commercial) : clients, prise de rdv, contrats, devis
         $receptionniste = Role::firstOrCreate(['name' => 'receptionniste', 'guard_name' => $guard]);
         $receptionniste->syncPermissions([
             'view dashboard',
@@ -91,6 +99,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage insurers',
             'view invoices', 'create invoice',
             'view visits', 'create visit', 'edit visit',
+            'view devis', 'create devis', 'edit devis', 'print devis', 'convert devis',
         ]);
 
         User::firstOrCreate(
