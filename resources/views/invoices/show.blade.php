@@ -113,12 +113,6 @@
                                 <dd class="text-gray-900 mt-1">{{ $invoice->sample_nature }}</dd>
                             </div>
                             @endif
-                            @if ($invoice->company_site)
-                            <div>
-                                <dt class="text-gray-500">Site de l'entreprise</dt>
-                                <dd class="text-gray-900 mt-1">{{ $invoice->company_site }}</dd>
-                            </div>
-                            @endif
                             @if ($invoice->is_statement)
                             <div class="flex justify-between">
                                 <dt class="text-gray-500">Période</dt>
@@ -188,6 +182,12 @@
                             @else
                                 <div class="font-medium text-gray-900">{{ $invoice->recipient_name }}</div>
                                 <div class="text-xs text-gray-400">Client de passage (sans fiche)</div>
+                            @endif
+                            @if ($invoice->company_site)
+                                <div class="border-t border-gray-200 pt-2 mt-2">
+                                    <div class="text-xs text-gray-400">Site</div>
+                                    <div class="text-gray-900">{{ $invoice->site->name ?? $invoice->company_site }}</div>
+                                </div>
                             @endif
                             @if ($invoice->agent)
                                 <div class="border-t border-gray-200 pt-2 mt-2">
