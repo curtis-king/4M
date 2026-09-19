@@ -102,15 +102,15 @@
                             </div>
                             @endif
                             @if ($invoice->subject)
-                            <div class="border-t border-gray-100 pt-3">
+                            <div class="flex justify-between border-t border-gray-100 pt-3">
                                 <dt class="text-gray-500">Objet</dt>
-                                <dd class="text-gray-900 mt-1">{{ $invoice->subject }}</dd>
+                                <dd class="text-gray-900 text-right ml-4">{{ $invoice->subject }}</dd>
                             </div>
                             @endif
                             @if ($invoice->sample_nature)
-                            <div>
+                            <div class="flex justify-between">
                                 <dt class="text-gray-500">Nature des échantillons</dt>
-                                <dd class="text-gray-900 mt-1">{{ $invoice->sample_nature }}</dd>
+                                <dd class="text-gray-900 text-right ml-4">{{ $invoice->sample_nature }}</dd>
                             </div>
                             @endif
                             @if ($invoice->is_statement)
@@ -186,7 +186,7 @@
                             @if ($invoice->company_site)
                                 <div class="border-t border-gray-200 pt-2 mt-2">
                                     <div class="text-xs text-gray-400">Site</div>
-                                    <div class="text-gray-900">{{ $invoice->site->name ?? $invoice->company_site }}</div>
+                                    <div class="text-gray-900">{{ $invoice->company_site }}</div>
                                 </div>
                             @endif
                             @if ($invoice->agent)

@@ -46,17 +46,14 @@
         </header>
         <section class="meta"><div><span class="label">Date</span><span class="value">{{ $invoice->date->format('d/m/Y') }}</span></div><div><span class="label">Bon / Référence</span><span class="value">{{ $invoice->voucher_number ?: '—' }}</span></div></section>
         <section class="info-grid">
-            <div class="box"><div class="box-title">Client / entreprise</div><div class="box-content"><div class="recipient">{{ $invoice->recipient_name }}</div>@if ($invoice->client)<div class="muted">{{ $invoice->client->address ?: $invoice->client->city }}</div><div class="muted">{{ $invoice->client->phone }} @if($invoice->client->email) · {{ $invoice->client->email }} @endif</div>@endif @if ($invoice->company_site)<div class="muted">Site : {{ $invoice->site->name ?? $invoice->company_site }}</div>@endif</div></div>
+            <div class="box"><div class="box-title">Client / entreprise</div><div class="box-content"><div class="recipient">{{ $invoice->recipient_name }}</div>@if ($invoice->client)<div class="muted">{{ $invoice->client->address ?: $invoice->client->city }}</div><div class="muted">{{ $invoice->client->phone }} @if($invoice->client->email) · {{ $invoice->client->email }} @endif</div>@endif @if ($invoice->company_site)<div class="muted">Site : {{ $invoice->company_site }}</div>@endif</div></div>
             <div class="box"><div class="box-title">Références de facturation</div><div class="box-content"><span class="label">N° facture</span><span class="value">{{ $invoice->number }}</span>@if ($invoice->pec_number)<span class="muted">PEC : {{ $invoice->pec_number }}</span>@endif @if ($invoice->due_date)<br><span class="muted">Échéance : {{ $invoice->due_date->format('d/m/Y') }}</span>@endif</div></div>
         </section>
         @if ($invoice->is_statement)
-            <section class="box">
-                <div class="box-title">Objet / prestation</div>
-                <div class="box-content company-list">
-                    <span class="label">Période</span><span class="value">{{ $invoice->statement_start_date?->format('d/m/Y') }} — {{ $invoice->statement_end_date?->format('d/m/Y') }}</span>
-                    @foreach ($statementGroups as $entreprise => $entrepriseItems)<span class="company-name">{{ $entreprise }} · {{ $entrepriseItems->count() }}</span>@endforeach
-                </div>
-            </section>
+            <div class="mission-line company-list">
+                <span class="label">Objet / prestation :</span> Sommation du {{ $invoice->statement_start_date?->format('d/m/Y') }} au {{ $invoice->statement_end_date?->format('d/m/Y') }}
+                @foreach ($statementGroups as $entreprise => $entrepriseItems)<span class="company-name">{{ $entreprise }} · {{ $entrepriseItems->count() }}</span>@endforeach
+            </div>
         @endif
         @if ($invoice->subject || $invoice->sample_nature)
             <div class="mission-line">
