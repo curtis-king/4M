@@ -190,7 +190,6 @@ class InvoiceController extends Controller
             'subject' => 'nullable|string|max:255',
             'sample_nature' => 'nullable|string|max:255',
             'company_site' => 'nullable|string|max:255',
-            'site_id' => 'nullable|exists:client_sites,id',
             'currency' => 'required|in:XAF,USD',
             'tax_rate' => 'required|numeric|min:0|max:100',
             'discount_type' => 'required|in:aucun,pourcentage,montant',
@@ -234,7 +233,7 @@ class InvoiceController extends Controller
 
     public function show(Invoice $invoice)
     {
-        $invoice->load(['client', 'agent', 'site', 'insuranceContract.insurer', 'items.service', 'items.sourceVisit.examLines.service', 'payments', 'creator']);
+        $invoice->load(['client', 'agent', 'insuranceContract.insurer', 'items.service', 'items.sourceVisit.examLines.service', 'payments', 'creator']);
         $payments = $invoice->payments()->latest('payment_date')->get();
 
         return view('invoices.show', compact('invoice', 'payments'));
@@ -286,7 +285,6 @@ class InvoiceController extends Controller
             'subject' => 'nullable|string|max:255',
             'sample_nature' => 'nullable|string|max:255',
             'company_site' => 'nullable|string|max:255',
-            'site_id' => 'nullable|exists:client_sites,id',
             'currency' => 'required|in:XAF,USD',
             'tax_rate' => 'required|numeric|min:0|max:100',
             'discount_type' => 'required|in:aucun,pourcentage,montant',
@@ -351,7 +349,7 @@ class InvoiceController extends Controller
 
     public function print(Invoice $invoice)
     {
-        $invoice->load(['client', 'agent', 'site', 'insuranceContract.insurer', 'items.service', 'items.sourceVisit.examLines.service', 'payments', 'creator']);
+        $invoice->load(['client', 'agent', 'insuranceContract.insurer', 'items.service', 'items.sourceVisit.examLines.service', 'payments', 'creator']);
         $company = CompanySetting::instance();
 
         return view('invoices.print', compact('invoice', 'company'));

@@ -39,7 +39,6 @@ class Invoice extends Model
         'subject',
         'sample_nature',
         'company_site',
-        'site_id',
         'statement_start_date',
         'statement_end_date',
         'sfec_certified',
@@ -140,11 +139,6 @@ class Invoice extends Model
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
-    }
-
-    public function site(): BelongsTo
-    {
-        return $this->belongsTo(ClientSite::class);
     }
 
     public function insuranceContract(): BelongsTo

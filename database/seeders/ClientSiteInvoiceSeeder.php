@@ -58,7 +58,6 @@ class ClientSiteInvoiceSeeder extends Seeder
             'subject' => 'Contrôle sanitaire annuel du personnel',
             'sample_nature' => 'Sang, urine',
             'company_site' => $siegeSocial->name,
-            'site_id' => $siegeSocial->id,
         ]);
 
         $invoice->items()->create([
