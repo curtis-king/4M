@@ -109,6 +109,16 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Type destinataire *</label>
+                                <select name="recipient_type" x-model="recipientType" required
+                                    class="block w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="individual">Particulier</option>
+                                    <option value="business">Entreprise</option>
+                                    <option value="government">Gouvernement</option>
+                                    <option value="foreign">Étranger</option>
+                                </select>
+                            </div>
+                            <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">NIU <span x-show="recipientType !== 'individual'" class="text-red-400">*</span></label>
                                 <input type="text" name="niu" value="{{ old('niu') }}" :required="recipientType !== 'individual'"
                                     maxlength="17" pattern="[MP][A-Za-z0-9]{15,16}" inputmode="text"
@@ -119,16 +129,6 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">RCCM <span x-show="recipientType === 'business'" class="text-red-400">*</span></label>
                                 <input type="text" name="rccm" value="{{ old('rccm') }}" :required="recipientType === 'business'"
                                     class="block w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Type destinataire *</label>
-                                <select name="recipient_type" x-model="recipientType" required
-                                    class="block w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="individual">Particulier</option>
-                                    <option value="business">Entreprise</option>
-                                    <option value="government">Gouvernement</option>
-                                    <option value="foreign">Étranger</option>
-                                </select>
                             </div>
                             <div class="flex items-end pb-1">
                                 <label class="flex items-center gap-2 cursor-pointer">
@@ -230,15 +230,9 @@
     <script>
         function clientForm() {
             return {
-                clientType: '{{ old('
-                type ', $selectedType ?? '
-                particulier ') }}',
-                recipientType: '{{ old('
-                recipient_type ', '
-                individual ') }}',
-                linkType: '{{ old('
-                link_type ', '
-                ') }}',
+                clientType: '{{ old('type', $selectedType ?? 'particulier') }}',
+                recipientType: '{{ old('recipient_type', 'individual') }}',
+                linkType: '{{ old('link_type', '') }}',
             }
         }
     </script>
