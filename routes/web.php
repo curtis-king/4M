@@ -31,7 +31,6 @@ Route::middleware('auth')->group(function () {
     // Clients
     Route::middleware('permission:view clients')->prefix('clients')->name('clients.')->group(function () {
         Route::get('/', [ClientController::class, 'index'])->name('index');
-        Route::get('/{client}', [ClientController::class, 'show'])->name('show');
 
         Route::middleware('permission:create client')->group(function () {
             Route::get('/create', [ClientController::class, 'create'])->name('create');
@@ -48,6 +47,7 @@ Route::middleware('auth')->group(function () {
 
             // Sites (nested under client)
             Route::post('/{client}/sites', [ClientController::class, 'storeSite'])->name('sites.store');
+            Route::put('/{client}/sites/{site}', [ClientController::class, 'updateSite'])->name('sites.update');
             Route::delete('/{client}/sites/{site}', [ClientController::class, 'destroySite'])->name('sites.destroy');
 
             // Contrats d'assurance (nested under client)
@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{client}/contracts/{contract}', [ClientController::class, 'destroyContract'])->name('contracts.destroy');
         });
 
+        Route::get('/{client}', [ClientController::class, 'show'])->name('show');
         Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy')->middleware('permission:delete client');
     });
 
@@ -77,7 +78,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/statement', [StatementController::class, 'store'])->name('statement.store')->middleware('permission:create invoice');
 
         Route::get('/', [InvoiceController::class, 'index'])->name('index');
-        Route::get('/{invoice}', [InvoiceController::class, 'show'])->name('show');
         Route::get('/api/client/{client}', [InvoiceController::class, 'apiClientData'])->name('api.client');
 
         Route::middleware('permission:create invoice')->group(function () {
@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
             Route::patch('/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('status');
         });
 
+        Route::get('/{invoice}', [InvoiceController::class, 'show'])->name('show');
         Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy')->middleware('permission:delete invoice');
 
         Route::middleware('permission:print invoice')->group(function () {
@@ -137,7 +138,6 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:view visits')->prefix('visits')->name('visits.')->group(function () {
         Route::get('/', [VisitController::class, 'index'])->name('index');
         Route::get('/calendar', [VisitController::class, 'calendar'])->name('calendar');
-        Route::get('/{visit}', [VisitController::class, 'show'])->name('show');
 
         Route::middleware('permission:create visit')->group(function () {
             Route::get('/create', [VisitController::class, 'create'])->name('create');
@@ -149,6 +149,7 @@ Route::middleware('auth')->group(function () {
             Route::put('/{visit}', [VisitController::class, 'update'])->name('update');
         });
 
+        Route::get('/{visit}', [VisitController::class, 'show'])->name('show');
         Route::delete('/{visit}', [VisitController::class, 'destroy'])->name('destroy')->middleware('permission:delete visit');
     });
 

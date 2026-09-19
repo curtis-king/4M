@@ -162,7 +162,7 @@
                                     class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
                                     <option value="">— Aucun / sélectionner —</option>
                                     <template x-for="site in sites" :key="site.id">
-                                        <option :value="site.name" x-text="site.name + (site.city ? ' · ' + site.city : '')"></option>
+                                        <option :value="site.id" x-text="site.name + (site.city ? ' · ' + site.city : '')"></option>
                                     </template>
                                     <option value="__autre__">Autre (saisie libre)…</option>
                                 </select>
@@ -170,6 +170,7 @@
                                     placeholder="Ex. Usine Bonabéri, siège..."
                                     class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
                                 <input type="hidden" name="company_site" :value="companySiteValue">
+                                <input type="hidden" name="site_id" :value="companySiteId">
                                 <p x-show="sites.length === 0" class="mt-1 text-xs text-gray-400">Aucun site référencé pour ce client. Ajoutez-en depuis la fiche entreprise, ou utilisez « Autre ».</p>
                             </div>
                         </div>
@@ -385,8 +386,8 @@
                 contracts: [],
                 selectedContractId: '{{ old('insurance_contract_id') }}',
                 sites: [],
-                companySiteMode: '{{ old('company_site') }}',
-                companySiteOther: '{{ old('company_site') }}',
+                companySiteMode: '{{ old('site_id') ? old('site_id') : (old('company_site') ? '__autre__' : '') }}',
+                companySiteOther: '{{ old('site_id') ? '' : old('company_site', '') }}',
                 invoiceType: '{{ old('invoice_type', 'standard') }}',
                 serviceOptions: @json($serviceOptions),
                 prestationSearch: '',
@@ -407,6 +408,12 @@
 
                 get companySiteValue() {
                     if (this.companySiteMode === '__autre__') return this.companySiteOther;
+                    if (!this.companySiteMode) return '';
+                    const s = this.sites.find(s => String(s.id) === String(this.companySiteMode));
+                    return s ? s.name : this.companySiteOther;
+                },
+                get companySiteId() {
+                    if (!this.companySiteMode || this.companySiteMode === '__autre__') return '';
                     return this.companySiteMode;
                 },
 
@@ -482,8 +489,7 @@
                             this.sites = data.client.sites || [];
                             this.contracts = data.client.insurance_contracts || [];
                             this.selectedContractId = data.active_contract ? data.active_contract.id : '';
-                            if (this.companySiteMode && this.companySiteMode !== '__autre__' && !this.sites.some(s => s.name === this.companySiteMode)) {
-                                this.companySiteOther = this.companySiteMode;
+                            if (this.companySiteMode && this.companySiteMode !== '__autre__' && !this.sites.some(s => String(s.id) === String(this.companySiteMode))) {
                                 this.companySiteMode = '__autre__';
                             }
                         });

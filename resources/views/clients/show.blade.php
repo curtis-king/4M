@@ -299,14 +299,26 @@
                             @if ($client->sites->count())
                             <div class="divide-y divide-gray-100">
                                 @foreach ($client->sites as $site)
-                                <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ $site->name }}</div>
-                                        <div class="text-xs text-gray-400 mt-0.5">{{ $site->city ?: '—' }}</div>
+                                <div x-data="{ editing: false }" class="py-3 first:pt-0 last:pb-0">
+                                    <div x-show="!editing" class="flex items-center justify-between">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">{{ $site->name }}</div>
+                                            <div class="text-xs text-gray-400 mt-0.5">{{ $site->city ?: '—' }}</div>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <button type="button" @click="editing = true" class="text-xs text-gray-400 hover:text-gray-700">Modifier</button>
+                                            <form method="POST" action="{{ route('clients.sites.destroy', [$client, $site]) }}" onsubmit="return confirm('Supprimer ?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-xs text-gray-400 hover:text-red-500">Supprimer</button>
+                                            </form>
+                                        </div>
                                     </div>
-                                    <form method="POST" action="{{ route('clients.sites.destroy', [$client, $site]) }}" onsubmit="return confirm('Supprimer ?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="text-xs text-gray-400 hover:text-red-500">Supprimer</button>
+                                    <form x-show="editing" x-cloak method="POST" action="{{ route('clients.sites.update', [$client, $site]) }}" class="flex items-center gap-2">
+                                        @csrf @method('PUT')
+                                        <input type="text" name="name" value="{{ $site->name }}" required placeholder="Nom du site *" class="block w-full rounded-lg border-gray-300 text-sm">
+                                        <input type="text" name="city" value="{{ $site->city }}" placeholder="Ville" class="block w-40 rounded-lg border-gray-300 text-sm">
+                                        <button type="submit" class="text-xs text-primary-600 hover:text-primary-800 whitespace-nowrap">Enregistrer</button>
+                                        <button type="button" @click="editing = false" class="text-xs text-gray-400 hover:text-gray-600 whitespace-nowrap">Annuler</button>
                                     </form>
                                 </div>
                                 @endforeach

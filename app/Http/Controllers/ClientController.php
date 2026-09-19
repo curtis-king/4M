@@ -185,6 +185,21 @@ class ClientController extends Controller
         return redirect()->route('clients.show', $client)->with('success', 'Site ajouté.');
     }
 
+    public function updateSite(Request $request, Client $client, ClientSite $site)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+
+        $validated['sort_order'] = $validated['sort_order'] ?? 0;
+
+        $site->update($validated);
+
+        return redirect()->route('clients.show', $client)->with('success', 'Site mis à jour.');
+    }
+
     public function destroySite(Client $client, ClientSite $site)
     {
         $site->delete();
