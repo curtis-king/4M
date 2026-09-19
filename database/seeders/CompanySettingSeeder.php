@@ -11,6 +11,7 @@ class CompanySettingSeeder extends Seeder
     {
         CompanySetting::create([
             'name' => 'Laboratoire 4M',
+            'logo' => '/img/logo.png',
             'niu' => '1234567890',
             'address' => 'Brazzaville, République du Congo',
             'phone' => '+242 06 123 4567',
