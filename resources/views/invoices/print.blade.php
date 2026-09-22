@@ -8,8 +8,8 @@
         body { margin: 0; color: #172033; font: 10px/1.35 Arial, Helvetica, sans-serif; }
         .sheet { width: 100%; max-width: 190mm; margin: 0 auto; } .toolbar { padding: 16px; text-align: center; background: #f3f4f6; }
         .toolbar button { border: 0; border-radius: 6px; padding: 9px 18px; color: #fff; background: #0f766e; font-weight: bold; cursor: pointer; }
-        .brand { display: grid; grid-template-columns: 125px 1fr 145px; gap: 12px; align-items: center; border-bottom: 2px solid #14532d; padding: 0 0 10px; }
-        .logo { max-height: 55px; max-width: 115px; object-fit: contain; } .company-name { margin: 0 0 3px; color: #14532d; font-size: 16px; letter-spacing: .2px; text-transform: uppercase; }
+        .brand { display: grid; grid-template-columns: 125px 1fr 145px 55px; gap: 12px; align-items: center; border-bottom: 2px solid #14532d; padding: 0 0 10px; }
+        .logo { max-height: 55px; max-width: 115px; object-fit: contain; } .logo-badge { max-height: 48px; max-width: 50px; object-fit: contain; } .iso-9001 { max-height: 68px; max-width: 170px; object-fit: contain; display: block; margin-bottom: 5px; } .company-name { margin: 0 0 3px; color: #14532d; font-size: 16px; letter-spacing: .2px; text-transform: uppercase; }
         .company-details { color: #4b5563; font-size: 8.5px; } .document-title { border: 1px solid #14532d; text-align: center; padding: 8px 6px; color: #14532d; font-size: 14px; font-weight: 800; }
         .document-title small { display: block; margin-top: 3px; color: #374151; font-size: 8px; font-weight: normal; }
         .meta { display: grid; grid-template-columns: 1fr 1fr; margin-top: 10px; border: 1px solid #94a3b8; } .meta > div { padding: 7px 9px; } .meta > div + div { border-left: 1px solid #94a3b8; }
@@ -40,9 +40,10 @@
     <div class="toolbar"><button onclick="window.print()">Imprimer / Enregistrer en PDF</button></div>
     <main class="sheet">
         <header class="brand">
-            <div>@if ($company->logo)<img src="{{ $company->logo }}" alt="Logo {{ $company->name }}" class="logo">@endif</div>
+            <div><img src="{{ $company->logo ?: asset('img/logo.png') }}" alt="Logo {{ $company->name }}" class="logo"></div>
             <div><h1 class="company-name">{{ $company->name }}</h1><div class="company-details">{{ $company->address }}<br>Tél. {{ $company->phone }} @if($company->email) · {{ $company->email }} @endif<br>@if($company->niu) NIU : {{ $company->niu }} @endif @if($company->nif) · NIF : {{ $company->nif }} @endif @if($company->rc) · RC : {{ $company->rc }} @endif</div></div>
             <div class="document-title">@if ($invoice->is_statement) FACTURE DE SOMMATION @elseif ($invoice->is_controle_alimentaire) FACTURE — CONTRÔLE ALIMENTAIRE @else FACTURE @endif<small>{{ $invoice->number }}</small></div>
+            <div><img src="{{ asset('img/ROUGE.png') }}" alt="Logo {{ $company->name }}" class="logo-badge"></div>
         </header>
         <section class="meta"><div><span class="label">Date</span><span class="value">{{ $invoice->date->format('d/m/Y') }}</span></div><div><span class="label">Bon / Référence</span><span class="value">{{ $invoice->voucher_number ?: '—' }}</span></div></section>
         <section class="info-grid">
@@ -82,7 +83,7 @@
                 </div>
             </section>
         @endif
-        <footer class="footer"><div><div class="payment"><strong>Mode de paiement :</strong> Espèces, chèque ou virement bancaire.@if($company->bank_name) Banque : {{ $company->bank_name }} @if($company->bank_rib) — RIB : {{ $company->bank_rib }} @endif @endif</div>@if($invoice->notes)<div style="margin-top:5px;"><strong>Observations :</strong> {{ $invoice->notes }}</div>@endif</div><div class="signature">Le service comptabilité<br><br>Signature et cachet</div></footer>
+        <footer class="footer"><div><img src="{{ asset('img/iso 9001.jpg') }}" alt="Certifié ISO 9001" class="iso-9001"><div class="payment"><strong>Mode de paiement :</strong> Espèces, chèque ou virement bancaire.@if($company->bank_name) Banque : {{ $company->bank_name }} @if($company->bank_rib) — RIB : {{ $company->bank_rib }} @endif @endif</div>@if($invoice->notes)<div style="margin-top:5px;"><strong>Observations :</strong> {{ $invoice->notes }}</div>@endif</div><div class="signature">Le service comptabilité<br><br>Signature et cachet</div></footer>
     </main>
 </body>
 </html>

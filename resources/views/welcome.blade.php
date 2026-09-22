@@ -3,7 +3,7 @@
     @php
         $company = \App\Models\CompanySetting::instance();
         $hasLogo = file_exists(public_path('img/logo.png'));
-        $appName = $company->name ?: config('app.name', 'Labo 4M');
+        $appName = $company->name ?: config('app.name', "CENTRE 4M DE SANTE DU DIAGNOSTIC ET DE L'EXPERTISE");
     @endphp
     <head>
         <meta charset="utf-8">
@@ -27,14 +27,17 @@
             <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
                 <a href="{{ url('/') }}" class="flex items-center gap-3">
                     @if ($hasLogo)
-                        <img src="{{ asset('img/logo.png') }}" alt="{{ $appName }}" class="h-9 w-9 rounded-xl object-contain">
+                        <img src="{{ asset('img/logo.png') }}" alt="{{ $appName }}" class="h-9 w-9 shrink-0 rounded-xl object-contain">
                     @else
                         <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-sm font-bold text-white">4M</div>
                     @endif
                     <span class="leading-tight">
-                        <span class="block text-sm font-semibold text-gray-900">{{ $appName }}</span>
+                        <span class="block text-xs font-semibold text-gray-900">{{ $appName }}</span>
                         <span class="block text-xs text-gray-400">Facturation</span>
                     </span>
+                    @if ($hasLogo)
+                        <img src="{{ asset('img/ROUGE.png') }}" alt="{{ $appName }}" class="h-9 w-9 shrink-0 rounded-xl object-contain">
+                    @endif
                 </a>
 
                 @auth
@@ -55,9 +58,10 @@
         <section class="relative overflow-hidden bg-gradient-to-b from-primary-50 via-white to-white">
             <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
                 <div class="mx-auto max-w-3xl text-center">
-                    <div class="mb-6 flex justify-center">
+                    <div class="mb-6 flex items-center justify-center gap-4">
                         @if ($hasLogo)
                             <img src="{{ asset('img/logo.png') }}" alt="{{ $appName }}" class="h-16 w-16 rounded-2xl object-contain shadow-card">
+                            <img src="{{ asset('img/ROUGE.png') }}" alt="{{ $appName }}" class="h-16 w-16 rounded-2xl object-contain shadow-card">
                         @else
                             <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-600 text-2xl font-bold text-white shadow-card">4M</div>
                         @endif
@@ -172,14 +176,17 @@
                 <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
                     <div class="flex items-center gap-3">
                         @if ($hasLogo)
-                            <img src="{{ asset('img/logo.png') }}" alt="{{ $appName }}" class="h-8 w-8 rounded-lg object-contain">
+                            <img src="{{ asset('img/logo.png') }}" alt="{{ $appName }}" class="h-8 w-8 shrink-0 rounded-lg object-contain">
                         @else
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-xs font-bold text-white">4M</div>
                         @endif
                         <div class="leading-tight">
-                            <p class="text-sm font-semibold text-gray-900">{{ $appName }}</p>
+                            <p class="text-xs font-semibold text-gray-900">{{ $appName }}</p>
                             <p class="text-xs text-gray-400">Facturation &amp; gestion de laboratoire</p>
                         </div>
+                        @if ($hasLogo)
+                            <img src="{{ asset('img/ROUGE.png') }}" alt="{{ $appName }}" class="h-8 w-8 shrink-0 rounded-lg object-contain">
+                        @endif
                     </div>
 
                     <div class="flex flex-col items-center gap-1 text-center text-xs text-gray-500 sm:items-end sm:text-right">
@@ -196,6 +203,9 @@
                             <span>© {{ date('Y') }} {{ $appName }} — Tous droits réservés</span>
                         @endunless
                     </div>
+                </div>
+                <div class="mt-8 flex justify-center border-t border-gray-100 pt-6">
+                    <img src="{{ asset('img/iso 9001.jpg') }}" alt="Certification ISO 9001" class="h-28 w-auto object-contain">
                 </div>
             </div>
         </footer>

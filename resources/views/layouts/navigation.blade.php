@@ -9,12 +9,14 @@
 
     <div class="flex h-16 shrink-0 items-center gap-3 overflow-hidden border-b border-gray-100 px-6"
         :class="!sidebarHover && 'lg:px-0 lg:justify-center'">
-        <img src="{{ asset('img/logo.png') }}" alt="Labo 4M"
+        <img src="{{ asset('img/logo.png') }}" alt="CENTRE 4M DE SANTE DU DIAGNOSTIC ET DE L'EXPERTISE"
             class="h-9 w-9 shrink-0 rounded-xl object-contain" />
-        <div class="leading-tight transition-all duration-150" :class="!sidebarHover && 'lg:hidden'">
-            <p class="whitespace-nowrap text-sm font-semibold text-gray-900">Labo 4M</p>
-            <p class="whitespace-nowrap text-xs text-gray-400">Facturation</p>
+        <div class="min-w-0 flex-1 leading-tight transition-all duration-150" :class="!sidebarHover && 'lg:hidden'">
+            <p class="text-[10px] font-semibold uppercase leading-tight text-gray-900">CENTRE 4M DE SANTE DU DIAGNOSTIC ET DE L'EXPERTISE</p>
+            <p class="text-xs text-gray-400">Facturation</p>
         </div>
+        <img src="{{ asset('img/ROUGE.png') }}" alt="Logo 4M"
+            class="h-9 w-9 shrink-0 rounded-xl object-contain" :class="!sidebarHover && 'lg:hidden'" />
     </div>
 
     <nav class="flex-1 space-y-1 overflow-y-auto px-4 py-6">

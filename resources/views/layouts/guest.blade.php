@@ -38,10 +38,13 @@
 
             {{-- Logo --}}
             <div class="relative z-10 flex items-center gap-3">
-                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1.5 shadow-soft">
-                    <img src="{{ asset('img/logo.png') }}" alt="Labo 4M" class="h-full w-full object-contain">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-soft">
+                    <img src="{{ asset('img/logo.png') }}" alt="CENTRE 4M DE SANTE DU DIAGNOSTIC ET DE L'EXPERTISE" class="h-full w-full object-contain">
                 </div>
-                <span class="text-lg font-semibold tracking-tight">Labo 4M</span>
+                <span class="text-sm font-semibold leading-tight tracking-tight sm:text-base">CENTRE 4M DE SANTE DU DIAGNOSTIC ET DE L'EXPERTISE</span>
+                <div class="ml-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-soft">
+                    <img src="{{ asset('img/ROUGE.png') }}" alt="Logo 4M" class="h-full w-full object-contain">
+                </div>
             </div>
 
             {{-- Illustration : badges d'icônes laboratoire --}}
@@ -105,19 +108,25 @@
         {{-- Panneau formulaire --}}
         <div class="flex flex-1 flex-col items-center justify-center bg-gray-50 px-6 py-12">
             <div class="mb-8 flex items-center gap-3 lg:hidden">
-                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1.5 shadow-soft">
-                    <img src="{{ asset('img/logo.png') }}" alt="Labo 4M" class="h-full w-full object-contain">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-soft">
+                    <img src="{{ asset('img/logo.png') }}" alt="CENTRE 4M DE SANTE DU DIAGNOSTIC ET DE L'EXPERTISE" class="h-full w-full object-contain">
                 </div>
-                <span class="text-lg font-semibold tracking-tight text-gray-900">Labo 4M</span>
+                <span class="text-xs font-semibold uppercase leading-tight tracking-tight text-gray-900">CENTRE 4M DE SANTE DU DIAGNOSTIC ET DE L'EXPERTISE</span>
+                <div class="ml-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-soft">
+                    <img src="{{ asset('img/ROUGE.png') }}" alt="Logo 4M" class="h-full w-full object-contain">
+                </div>
             </div>
 
             <div class="w-full max-w-sm rounded-2xl bg-white p-8 shadow-card">
                 {{ $slot }}
             </div>
 
-            <p class="mt-6 text-center text-xs text-gray-400">
-                © {{ date('Y') }} Labo 4M — Laboratoire d'analyses médicales
-            </p>
+            <div class="mt-6 flex flex-col items-center gap-2">
+                <img src="{{ asset('img/iso 9001.jpg') }}" alt="Certification ISO 9001" class="h-16 w-auto object-contain">
+                <p class="text-center text-xs text-gray-400">
+                    © {{ date('Y') }} CENTRE 4M DE SANTE DU DIAGNOSTIC ET DE L'EXPERTISE — Laboratoire d'analyses médicales
+                </p>
+            </div>
         </div>
     </div>
 </body>

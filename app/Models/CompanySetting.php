@@ -32,7 +32,7 @@ class CompanySetting extends Model
     public static function instance(): static
     {
         return static::firstOrCreate([], [
-            'name' => 'Labo 4M',
+            'name' => "CENTRE 4M DE SANTE DU DIAGNOSTIC ET DE L'EXPERTISE",
             'niu' => '',
             'address' => '',
             'phone' => '',

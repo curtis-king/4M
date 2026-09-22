@@ -10,7 +10,7 @@ class CompanySettingSeeder extends Seeder
     public function run(): void
     {
         CompanySetting::create([
-            'name' => 'Laboratoire 4M',
+            'name' => "CENTRE 4M DE SANTE DU DIAGNOSTIC ET DE L'EXPERTISE",
             'logo' => '/img/logo.png',
             'niu' => '1234567890',
             'address' => 'Brazzaville, République du Congo',
