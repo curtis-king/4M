@@ -110,7 +110,55 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end">
+                <div class="bg-white shadow-card rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Codes comptables (préparation export Sage)</h3>
+                    <p class="text-xs text-gray-400 mb-4">
+                        Ces comptes seront utilisés pour générer les journaux CSV importables directement dans Sage (OHADA/SYSCOHADA).
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Clients (Débiteurs)</label>
+                            <input type="text" name="accounting_clients" value="{{ old('accounting_clients', $settings->accounting_clients ?? '411') }}"
+                                placeholder="411" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                            <p class="text-xs text-gray-400 mt-1">Compagnie d'assurance également sur ce compte pour les sommations.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Ventes (Prestations)</label>
+                            <input type="text" name="accounting_ventes" value="{{ old('accounting_ventes', $settings->accounting_ventes ?? '701') }}"
+                                placeholder="701" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">TVA collectée</label>
+                            <input type="text" name="accounting_tva" value="{{ old('accounting_tva', $settings->accounting_tva ?? '44571') }}"
+                                placeholder="44571" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Caisse</label>
+                            <input type="text" name="accounting_caisse" value="{{ old('accounting_caisse', $settings->accounting_caisse ?? '571') }}"
+                                placeholder="571" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Banque</label>
+                            <input type="text" name="accounting_banque" value="{{ old('accounting_banque', $settings->accounting_banque ?? '512') }}"
+                                placeholder="512" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Assurance (Créditeurs)</label>
+                            <input type="text" name="accounting_assurance" value="{{ old('accounting_assurance', $settings->accounting_assurance ?? '411') }}"
+                                placeholder="411" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                            <p class="text-xs text-gray-400 mt-1">Souvent même compte 411 (subdivision) ou spécifique selon paramétrage Sage.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <form method="POST" action="{{ route('settings.repair-access') }}" class="inline-block" onsubmit="return confirm('Réparer les permissions et rôles ? Cela recréera les permissions manquantes et resynchronisera les rôles de base.')">
+                        @csrf
+                        <button type="submit" class="text-sm font-medium text-gray-600 hover:text-gray-900 underline">
+                            Réparer les accès (permissions & rôles)
+                        </button>
+                    </form>
+
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-6 py-2 rounded-lg">
                         Enregistrer les paramètres
                     </button>

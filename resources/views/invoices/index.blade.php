@@ -3,6 +3,12 @@
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-900 leading-tight">Factures</h2>
             <div class="flex items-center gap-2">
+                @can('export financial data')
+                <a href="{{ route('finance.exports') }}" class="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+                    Export Sage
+                </a>
+                @endcan
                 <a href="{{ route('invoices.statement.create') }}" class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Facture de sommation
@@ -31,6 +37,7 @@
             @endif
 
             @php
+                $canFin = auth()->user()->can('view financial data');
                 $nbCertifiees = \App\Models\Invoice::where('sfec_certified', true)->count();
                 $nbSommations = \App\Models\Invoice::where('is_statement', true)->count();
                 $nbControle = \App\Models\Invoice::where('invoice_type', 'controle_alimentaire')->count();
@@ -45,11 +52,20 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-4.5-9h18a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5h-18a1.5 1.5 0 01-1.5-1.5v-9a1.5 1.5 0 011.5-1.5z" />
                         </svg>
                     </div>
-                    <div class="mt-4 text-2xl font-bold text-gray-900">{{ number_format($totalFacture, 0, ',', ' ') }} <span class="text-sm font-normal text-gray-400">FCFA</span></div>
-                    <div class="mt-1 text-sm text-gray-500">Total facturé</div>
-                    <div class="mt-1 text-xs text-gray-400">{{ $nbFacturesFiltrees }} facture(s)</div>
+                    <div class="mt-4 text-2xl font-bold text-gray-900">
+                        @if ($canFin)
+                            {{ number_format($totalFacture, 0, ',', ' ') }} <span class="text-sm font-normal text-gray-400">FCFA</span>
+                        @else
+                            {{ $nbFacturesFiltrees }}
+                        @endif
+                    </div>
+                    <div class="mt-1 text-sm text-gray-500">{{ $canFin ? 'Total facturé' : 'Factures (filtre)' }}</div>
+                    @if ($canFin)
+                        <div class="mt-1 text-xs text-gray-400">{{ $nbFacturesFiltrees }} facture(s)</div>
+                    @endif
                 </div>
 
+                @if ($canFin)
                 <div class="rounded-2xl bg-white p-6 shadow-card">
                     <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -69,6 +85,7 @@
                     <div class="mt-4 text-2xl font-bold text-gray-900">{{ number_format($totalRestant, 0, ',', ' ') }} <span class="text-sm font-normal text-gray-400">FCFA</span></div>
                     <div class="mt-1 text-sm text-gray-500">Reste à recouvrer</div>
                 </div>
+                @endif
 
                 <div class="rounded-2xl bg-white p-6 shadow-card">
                     <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
@@ -147,9 +164,11 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total TTC</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Payé</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Reste</th>
+                                @if ($canFin)
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total TTC</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Payé</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Reste</th>
+                                @endif
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -196,15 +215,17 @@
                                             {{ ucfirst($invoice->status) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-3 whitespace-nowrap text-sm text-right font-medium text-gray-900">
-                                        {{ number_format($invoice->total, 0, ',', ' ') }} FCFA
-                                    </td>
-                                    <td class="px-6 py-3 whitespace-nowrap text-sm text-right text-emerald-600">
-                                        {{ number_format($invoice->paid_amount, 0, ',', ' ') }}
-                                    </td>
-                                    <td class="px-6 py-3 whitespace-nowrap text-sm text-right {{ $invoice->amountDue > 0 ? 'text-rose-600' : 'text-gray-400' }}">
-                                        {{ number_format($invoice->amountDue, 0, ',', ' ') }}
-                                    </td>
+                                    @if ($canFin)
+                                        <td class="px-6 py-3 whitespace-nowrap text-sm text-right font-medium text-gray-900">
+                                            {{ number_format($invoice->total, 0, ',', ' ') }} FCFA
+                                        </td>
+                                        <td class="px-6 py-3 whitespace-nowrap text-sm text-right text-emerald-600">
+                                            {{ number_format($invoice->paid_amount, 0, ',', ' ') }}
+                                        </td>
+                                        <td class="px-6 py-3 whitespace-nowrap text-sm text-right {{ $invoice->amountDue > 0 ? 'text-rose-600' : 'text-gray-400' }}">
+                                            {{ number_format($invoice->amountDue, 0, ',', ' ') }}
+                                        </td>
+                                    @endif
                                     <td class="px-6 py-3 whitespace-nowrap text-right">
                                         <div class="flex items-center justify-end gap-1">
                                             <a href="{{ route('invoices.show', $invoice) }}" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="Voir">
@@ -232,7 +253,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="px-6 py-16 text-center">
+                                    <td colspan="{{ $canFin ? 8 : 5 }}" class="px-6 py-16 text-center">
                                         <p class="text-sm text-gray-500">Aucune facture trouvée.</p>
                                         <a href="{{ route('invoices.create') }}" class="inline-block mt-3 text-sm text-primary-600 hover:text-primary-800 font-medium">+ Créer une facture</a>
                                     </td>

@@ -1,4 +1,5 @@
 @php
+    $canFin = auth()->user()->can('view financial data');
     $statementGroups = $invoice->items->groupBy(fn ($item) => $item->company_name ?: 'Divers');
 @endphp
 
@@ -12,9 +13,11 @@
                         <tr>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Assuré</th>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Objet / prestation</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Montant complet</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Couv.</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Part assureur</th>
+                            @if ($canFin)
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Montant complet</th>
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Couv.</th>
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Part assureur</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -53,18 +56,22 @@
                                         <div class="text-xs text-gray-400">{{ $sourceVisit->visit_date->format('d/m/Y') }}</div>
                                     @endif
                                 </td>
+                                @if ($canFin)
                                 <td class="px-4 py-2 text-right text-gray-600">{{ number_format($item->net_amount, 0, ',', ' ') }}</td>
                                 <td class="px-4 py-2 text-right text-gray-600">{{ $item->coverage_rate !== null ? number_format((float) $item->coverage_rate, 0, ',', ' ').'%' : '—' }}</td>
                                 <td class="px-4 py-2 text-right font-medium text-blue-700">{{ number_format($item->insurance_part, 0, ',', ' ') }}</td>
+                            @endif
                             </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
                         <tr class="bg-gray-50">
                             <td colspan="2" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Sous-total {{ $company }}</td>
-                            <td class="px-4 py-2 text-right font-semibold text-gray-900">{{ number_format($items->sum('net_amount'), 0, ',', ' ') }}</td>
-                            <td class="px-4 py-2"></td>
-                            <td class="px-4 py-2 text-right font-semibold text-blue-700">{{ number_format($items->sum('insurance_part'), 0, ',', ' ') }}</td>
+                            @if ($canFin)
+                                <td class="px-4 py-2 text-right font-semibold text-gray-900">{{ number_format($items->sum('net_amount'), 0, ',', ' ') }}</td>
+                                <td class="px-4 py-2"></td>
+                                <td class="px-4 py-2 text-right font-semibold text-blue-700">{{ number_format($items->sum('insurance_part'), 0, ',', ' ') }}</td>
+                            @endif
                         </tr>
                     </tfoot>
                 </table>

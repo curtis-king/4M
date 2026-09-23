@@ -13,6 +13,7 @@
 
         @if ($hasLogo)
             <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}" />
+            <link rel="apple-touch-icon" href="{{ asset('img/logo.png') }}" />
         @endif
 
         @fonts

@@ -1,3 +1,4 @@
+@php $canFin = auth()->user()->can('view financial data'); @endphp
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
@@ -14,7 +15,7 @@
                 @endif
             </h2>
             <div class="flex gap-2">
-                @if ($invoice->status !== 'annulee')
+                @if ($invoice->status !== 'annulee' && auth()->user()->can('print invoice'))
                     <a href="{{ route('invoices.print', $invoice) }}" target="_blank" class="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0M6.34 18l.229 2.523a1.125 1.125 0 001.12 1.227h8.622a1.125 1.125 0 001.12-1.227L17.66 18M6.34 18H4.75A1.75 1.75 0 013 16.25v-4.875c0-1.036.84-1.875 1.875-1.875h14.25A1.875 1.875 0 0121 11.375v4.875A1.75 1.75 0 0119.25 18H17.66M6.34 18h11.32M6.75 7.5V4.875c0-.621.504-1.125 1.125-1.125h8.25c.621 0 1.125.504 1.125 1.125V7.5"/></svg>
                         Imprimer
@@ -46,6 +47,7 @@
             @endif
 
             {{-- Résumé des montants --}}
+            @if ($canFin)
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                 <div class="rounded-2xl bg-white p-6 shadow-card">
                     <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
@@ -78,6 +80,11 @@
                     <div class="mt-1 text-sm text-gray-500">Reste à payer</div>
                 </div>
             </div>
+            @else
+                <div class="rounded-2xl bg-gray-50 px-4 py-3 text-sm text-gray-500">
+                    Les montants de cette facture ne sont pas visibles pour votre profil.
+                </div>
+            @endif
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {{-- Sidebar infos --}}
@@ -277,9 +284,11 @@
                                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
                                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                                         <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Qté</th>
-                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Prix unit.</th>
-                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Remise</th>
-                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Net HT</th>
+                                        @if ($canFin)
+                                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Prix unit.</th>
+                                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Remise</th>
+                                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Net HT</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
@@ -293,15 +302,17 @@
                                         </td>
                                         <td class="px-4 py-2 text-gray-600">{{ ucfirst($item->type) }}</td>
                                         <td class="px-4 py-2 text-right text-gray-600">{{ $item->quantity }}</td>
-                                        <td class="px-4 py-2 text-right text-gray-600">{{ number_format($item->unit_price, 0, ',', ' ') }}</td>
-                                        <td class="px-4 py-2 text-right text-gray-600">
-                                            @if ($item->discount_amount > 0)
-                                                -{{ number_format($item->discount_amount, 0, ',', ' ') }}
-                                            @else
-                                                —
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-2 text-right font-medium text-gray-900">{{ number_format($item->net_amount, 0, ',', ' ') }} FCFA</td>
+                                        @if ($canFin)
+                                            <td class="px-4 py-2 text-right text-gray-600">{{ number_format($item->unit_price, 0, ',', ' ') }}</td>
+                                            <td class="px-4 py-2 text-right text-gray-600">
+                                                @if ($item->discount_amount > 0)
+                                                    -{{ number_format($item->discount_amount, 0, ',', ' ') }}
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-2 text-right font-medium text-gray-900">{{ number_format($item->net_amount, 0, ',', ' ') }} FCFA</td>
+                                        @endif
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -310,6 +321,7 @@
                         @endif
 
                         <div class="mt-4 flex justify-end">
+                            @if ($canFin)
                             <div class="w-72 space-y-1 text-sm">
                                 @if ($invoice->is_statement)
                                 <div class="flex justify-between">
@@ -365,10 +377,12 @@
                                     <span class="font-bold">{{ number_format($invoice->amountDue, 0, ',', ' ') }} FCFA</span>
                                 </div>
                             </div>
+                            @endif
                         </div>
                     </div>
 
                     {{-- Paiements --}}
+                    @if ($canFin)
                     <div class="bg-white shadow-card rounded-2xl p-6" x-data="{ open: false, payer: 'assurance' }">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-semibold text-gray-800">Paiements ({{ $payments->count() }})</h3>
@@ -480,6 +494,7 @@
                         <p class="text-sm text-gray-500">Aucun paiement enregistré.</p>
                         @endif
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

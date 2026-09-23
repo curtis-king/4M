@@ -20,18 +20,14 @@
 
             @php
                 $roleLabels = [
-                    'directeur' => 'Directeur',
-                    'partenaire' => 'Partenaire',
+                    'administrateur' => 'Administrateur',
                     'comptable' => 'Comptable',
-                    'agent_labo' => 'Agent labo',
-                    'receptionniste' => 'Réceptionniste',
+                    'secretaire' => 'Secrétaire',
                 ];
                 $roleColors = [
-                    'directeur' => 'text-red-600 bg-red-50',
-                    'partenaire' => 'text-indigo-600 bg-indigo-50',
+                    'administrateur' => 'text-red-600 bg-red-50',
                     'comptable' => 'text-emerald-600 bg-emerald-50',
-                    'agent_labo' => 'text-blue-600 bg-blue-50',
-                    'receptionniste' => 'text-amber-600 bg-amber-50',
+                    'secretaire' => 'text-amber-600 bg-amber-50',
                 ];
             @endphp
 
@@ -64,7 +60,9 @@
                                     <td class="px-6 py-3 text-sm text-gray-600">{{ $user->email }}</td>
                                     <td class="px-6 py-3">
                                         @foreach ($user->roles as $role)
-                                            <span class="text-xs font-medium px-2 py-0.5 rounded {{ $roleColors[$role->name] ?? 'text-gray-600 bg-gray-50' }}">{{ $roleLabels[$role->name] ?? $role->name }}</span>
+                                            <span class="text-xs font-medium px-2 py-0.5 rounded {{ $roleColors[$role->name] ?? 'text-gray-600 bg-gray-50' }}">
+                                                {{ $role->label ?? ($roleLabels[$role->name] ?? $role->name) }}
+                                            </span>
                                         @endforeach
                                         @if ($user->roles->isEmpty())
                                             <span class="text-xs text-gray-300">Aucun rôle</span>

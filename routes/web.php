@@ -3,11 +3,14 @@
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CompanySettingController;
 use App\Http\Controllers\DevisController;
+use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InsurerController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReagentController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StatementController;
@@ -19,7 +22,21 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', [InvoiceController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'home'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Le tableau de bord est routé par profil : chaque rôle a sa page dédiée.
+    Route::get('/dashboard/administrateur', [DashboardController::class, 'administrateur'])
+        ->middleware('role:administrateur')->name('dashboard.administrateur');
+
+    Route::get('/dashboard/comptabilite', [DashboardController::class, 'comptabilite'])
+        ->middleware('role:comptable')->name('dashboard.comptabilite');
+
+    Route::get('/dashboard/accueil', [DashboardController::class, 'accueil'])
+        ->middleware('role:secretaire')->name('dashboard.accueil');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -68,6 +85,21 @@ Route::middleware('auth')->group(function () {
         Route::put('/{insurer}/assures/{contract}', [InsurerController::class, 'updateAssure'])->name('assures.update');
         Route::delete('/{insurer}/assures/{contract}', [InsurerController::class, 'destroyAssure'])->name('assures.destroy');
         Route::post('/{insurer}/discount', [InsurerController::class, 'updateDiscount'])->name('discount');
+    });
+
+    // Comptabilité : exports Sage + imports Excel
+    Route::middleware('permission:view financial data')->prefix('comptabilite')->name('finance.')->group(function () {
+        Route::middleware('permission:export financial data')->group(function () {
+            Route::get('/exports', [FinanceController::class, 'exports'])->name('exports');
+            Route::get('/exports/sales', [FinanceController::class, 'exportSales'])->name('exports.sales');
+            Route::get('/exports/receipts', [FinanceController::class, 'exportReceipts'])->name('exports.receipts');
+        });
+
+        Route::middleware('permission:import financial data')->group(function () {
+            Route::get('/imports', [FinanceController::class, 'imports'])->name('imports');
+            Route::get('/imports/template/{type}', [FinanceController::class, 'importTemplate'])->name('import.template');
+            Route::post('/imports/{type}', [FinanceController::class, 'importStore'])->name('import.store');
+        });
     });
 
     // Factures
@@ -177,6 +209,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:manage settings')->prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [CompanySettingController::class, 'edit'])->name('edit');
         Route::put('/', [CompanySettingController::class, 'update'])->name('update');
+        Route::post('/repair-access', [CompanySettingController::class, 'repairAccess'])->name('repair-access');
     });
 
     // Utilisateurs (directeur uniquement)
@@ -187,6 +220,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+    });
+
+    // Rôles & permissions (administrateur uniquement)
+    Route::middleware('permission:manage roles')->prefix('settings/roles')->name('roles.')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('index');
+        Route::get('/create', [RoleController::class, 'create'])->name('create');
+        Route::post('/', [RoleController::class, 'store'])->name('store');
+        Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('edit');
+        Route::put('/{role}', [RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('destroy');
     });
 });
 

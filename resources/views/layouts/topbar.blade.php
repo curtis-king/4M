@@ -48,7 +48,7 @@
                         <template x-for="i in results.invoices" :key="'i' + i.id">
                             <a :href="i.url" class="flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm hover:bg-gray-50">
                                 <span class="truncate text-gray-900" x-text="i.number + ' — ' + i.client"></span>
-                                <span class="shrink-0 text-xs text-gray-400" x-text="i.total + ' FCFA'"></span>
+                                <span class="shrink-0 text-xs text-gray-400" x-show="i.total" x-text="i.total + ' FCFA'"></span>
                             </a>
                         </template>
                     </div>

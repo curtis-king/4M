@@ -43,7 +43,24 @@ class DevisController extends Controller
 
         $devis = $query->latest('date')->paginate(15);
 
-        return view('devis.index', compact('devis'));
+        $statusCounts = Devis::selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+        $statusCounts = collect([
+            'brouillon' => 0, 'envoye' => 0, 'accepte' => 0, 'refuse' => 0, 'converti' => 0,
+        ])->merge($statusCounts);
+
+        $stats = [
+            'total' => (float) Devis::sum('total'),
+            'totalEnCours' => (float) Devis::whereIn('status', ['brouillon', 'envoye'])->sum('total'),
+            'totalAcceptes' => (float) Devis::where('status', 'accepte')->sum('total'),
+            'totalConvertis' => (float) Devis::where('status', 'converti')->sum('total'),
+            'totalRefuses' => (float) Devis::where('status', 'refuse')->sum('total'),
+        ];
+
+        $clients = \App\Models\Client::orderBy('name')->get();
+
+        return view('devis.index', compact('devis', 'stats', 'statusCounts', 'clients'));
     }
 
     public function create(Request $request)
@@ -200,8 +217,21 @@ class DevisController extends Controller
     public function updateStatus(Request $request, Devis $devis)
     {
         $request->validate([
-            'status' => 'required|in:brouillon,envoye,accepte,refuse,converti',
+            'status' => 'required|in:brouillon,envoye,accepte,refuse',
         ]);
+
+        $allowed = match ($devis->status) {
+            'brouillon' => ['brouillon', 'envoye', 'refuse'],
+            'envoye' => ['envoye', 'accepte', 'refuse', 'brouillon'],
+            'accepte' => ['accepte', 'refuse'],
+            'refuse' => ['refuse', 'brouillon'],
+            'converti' => ['converti'],
+            default => [],
+        };
+
+        if (!in_array($request->status, $allowed, true)) {
+            return back()->with('error', 'Transition de statut non autorisée.');
+        }
 
         $devis->update(['status' => $request->status]);
 

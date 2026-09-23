@@ -22,6 +22,12 @@ class CompanySetting extends Model
         'sfec_api_key',
         'sfec_api_key_sandbox',
         'sfec_environment',
+        'accounting_clients',
+        'accounting_ventes',
+        'accounting_tva',
+        'accounting_caisse',
+        'accounting_banque',
+        'accounting_assurance',
     ];
 
     public function setNiuAttribute($value): void

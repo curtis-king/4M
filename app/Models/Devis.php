@@ -131,4 +131,58 @@ class Devis extends Model
             default => 'bg-gray-100 text-gray-800',
         };
     }
+
+    public function getStatusDotAttribute(): string
+    {
+        return match ($this->status) {
+            'brouillon' => 'bg-gray-400',
+            'envoye' => 'bg-blue-500',
+            'accepte' => 'bg-green-500',
+            'refuse' => 'bg-red-500',
+            'converti' => 'bg-purple-500',
+            default => 'bg-gray-400',
+        };
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            'brouillon' => 'Brouillon',
+            'envoye' => 'Envoyé',
+            'accepte' => 'Accepté',
+            'refuse' => 'Refusé',
+            'converti' => 'Converti en facture',
+            default => ucfirst($this->status),
+        };
+    }
+
+    public function getWorkflowStepsAttribute(): array
+    {
+        $steps = [
+            ['key' => 'brouillon', 'label' => 'Brouillon'],
+            ['key' => 'envoye', 'label' => 'Envoyé'],
+            ['key' => 'accepte', 'label' => 'Accepté'],
+            ['key' => 'converti', 'label' => 'Converti'],
+        ];
+
+        $current = $this->status === 'refuse' ? 'refuse' : $this->status;
+        $reach = array_search($current, array_column($steps, 'key'), true) ?: -1;
+
+        foreach ($steps as $i => $step) {
+            $steps[$i]['state'] = $i < $reach ? 'done' : ($i === $reach ? 'current' : 'pending');
+        }
+
+        return $steps;
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereNotIn('status', ['refuse']);
+    }
+
+    public function scopeExpired($query)
+    {
+        return $query->where('due_date', '<', now())
+            ->whereNotIn('status', ['converti', 'refuse']);
+    }
 }

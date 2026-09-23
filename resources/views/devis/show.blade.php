@@ -1,3 +1,4 @@
+@php $canFin = auth()->user()->can('view financial data'); @endphp
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
@@ -32,6 +33,36 @@
                     <a href="{{ route('invoices.show', $devis->invoice) }}" class="underline font-medium">{{ $devis->invoice->number }}</a>.
                 </div>
             @endif
+
+            {{-- Stepper de workflow --}}
+            <div class="rounded-2xl bg-white p-5 shadow-card">
+                <div class="flex items-center justify-between gap-2">
+                    @foreach ($devis->workflow_steps as $step)
+                        <div class="flex flex-1 items-center">
+                            <div class="flex flex-col items-center">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold
+                                    {{ $step['state'] === 'done' ? 'bg-primary-600 text-white' : ($step['state'] === 'current' ? 'bg-primary-100 text-primary-700 ring-2 ring-primary-600' : 'bg-gray-100 text-gray-400') }}">
+                                    @if ($step['state'] === 'done')
+                                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        {{ $loop->iteration }}
+                                    @endif
+                                </div>
+                                <span class="mt-1.5 text-[11px] font-medium {{ $step['state'] === 'pending' ? 'text-gray-400' : 'text-gray-700' }}">{{ $step['label'] }}</span>
+                            </div>
+                            @unless ($loop->last)
+                                <div class="mx-2 h-0.5 flex-1 rounded {{ $step['state'] === 'done' ? 'bg-primary-400' : 'bg-gray-100' }}"></div>
+                            @endunless
+                        </div>
+                    @endforeach
+                </div>
+                @if ($devis->status === 'refuse')
+                    <div class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-600">
+                        <span class="h-2 w-2 rounded-full bg-red-500"></span>
+                        Devis refusé — n'est plus convertissable.
+                    </div>
+                @endif
+            </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {{-- Sidebar infos --}}
@@ -105,14 +136,21 @@
                         <h3 class="text-sm font-semibold text-gray-700 mb-3">Actions</h3>
                         <div class="space-y-2">
                             @if ($devis->status !== 'converti')
+                            @php
+                                $allowedStatuses = [
+                                    'brouillon' => ['brouillon' => 'Brouillon', 'envoye' => 'Envoyé', 'refuse' => 'Refusé'],
+                                    'envoye' => ['envoye' => 'Envoyé', 'accepte' => 'Accepté', 'refuse' => 'Refusé', 'brouillon' => 'Retour au brouillon'],
+                                    'accepte' => ['accepte' => 'Accepté', 'refuse' => 'Refusé'],
+                                    'refuse' => ['refuse' => 'Refusé', 'brouillon' => 'Relancer en brouillon'],
+                                ][$devis->status] ?? [];
+                            @endphp
                             <form method="POST" action="{{ route('devis.status', $devis) }}">
                                 @csrf @method('PATCH')
                                 <div class="flex gap-2">
                                     <select name="status" class="flex-1 rounded-lg border-gray-300 shadow-sm text-sm">
-                                        <option value="brouillon" {{ $devis->status === 'brouillon' ? 'selected' : '' }}>Brouillon</option>
-                                        <option value="envoye" {{ $devis->status === 'envoye' ? 'selected' : '' }}>Envoyé</option>
-                                        <option value="accepte" {{ $devis->status === 'accepte' ? 'selected' : '' }}>Accepté</option>
-                                        <option value="refuse" {{ $devis->status === 'refuse' ? 'selected' : '' }}>Refusé</option>
+                                        @foreach ($allowedStatuses as $value => $label)
+                                            <option value="{{ $value }}" {{ $devis->status === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
                                     </select>
                                     <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white text-sm px-3 py-1.5 rounded-lg">OK</button>
                                 </div>
@@ -154,9 +192,11 @@
                                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
                                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                                         <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Qté</th>
-                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Prix unit.</th>
-                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Remise</th>
-                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Net HT</th>
+                                        @if ($canFin)
+                                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Prix unit.</th>
+                                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Remise</th>
+                                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Net HT</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
@@ -170,15 +210,17 @@
                                         </td>
                                         <td class="px-4 py-2 text-gray-600">{{ ucfirst($item->type) }}</td>
                                         <td class="px-4 py-2 text-right text-gray-600">{{ $item->quantity }}</td>
-                                        <td class="px-4 py-2 text-right text-gray-600">{{ number_format($item->unit_price, 0, ',', ' ') }}</td>
-                                        <td class="px-4 py-2 text-right text-gray-600">
-                                            @if ($item->discount_amount > 0)
-                                                -{{ number_format($item->discount_amount, 0, ',', ' ') }}
-                                            @else
-                                                —
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-2 text-right font-medium text-gray-900">{{ number_format($item->net_amount, 0, ',', ' ') }} FCFA</td>
+                                        @if ($canFin)
+                                            <td class="px-4 py-2 text-right text-gray-600">{{ number_format($item->unit_price, 0, ',', ' ') }}</td>
+                                            <td class="px-4 py-2 text-right text-gray-600">
+                                                @if ($item->discount_amount > 0)
+                                                    -{{ number_format($item->discount_amount, 0, ',', ' ') }}
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-2 text-right font-medium text-gray-900">{{ number_format($item->net_amount, 0, ',', ' ') }} FCFA</td>
+                                        @endif
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -186,26 +228,32 @@
                         </div>
 
                         <div class="mt-4 flex justify-end">
-                            <div class="w-72 space-y-1 text-sm">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-500">Sous-total HT :</span>
-                                    <span class="font-medium">{{ number_format($devis->subtotal, 0, ',', ' ') }} FCFA</span>
+                            @if ($canFin)
+                                <div class="w-72 space-y-1 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-500">Sous-total HT :</span>
+                                        <span class="font-medium">{{ number_format($devis->subtotal, 0, ',', ' ') }} FCFA</span>
+                                    </div>
+                                    @if ($devis->discount_amount > 0)
+                                    <div class="flex justify-between text-red-600">
+                                        <span>Remise :</span>
+                                        <span class="font-medium">- {{ number_format($devis->discount_amount, 0, ',', ' ') }} FCFA</span>
+                                    </div>
+                                    @endif
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-500">TVA ({{ $devis->tax_rate }}%) :</span>
+                                        <span class="font-medium">{{ number_format($devis->tax_amount, 0, ',', ' ') }} FCFA</span>
+                                    </div>
+                                    <div class="flex justify-between border-t border-gray-300 pt-1">
+                                        <span class="font-semibold">Total TTC :</span>
+                                        <span class="font-bold text-lg">{{ number_format($devis->total, 0, ',', ' ') }} FCFA</span>
+                                    </div>
                                 </div>
-                                @if ($devis->discount_amount > 0)
-                                <div class="flex justify-between text-red-600">
-                                    <span>Remise :</span>
-                                    <span class="font-medium">- {{ number_format($devis->discount_amount, 0, ',', ' ') }} FCFA</span>
+                            @else
+                                <div class="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500">
+                                    Les montants de ce devis ne sont pas visibles pour votre profil.
                                 </div>
-                                @endif
-                                <div class="flex justify-between">
-                                    <span class="text-gray-500">TVA ({{ $devis->tax_rate }}%) :</span>
-                                    <span class="font-medium">{{ number_format($devis->tax_amount, 0, ',', ' ') }} FCFA</span>
-                                </div>
-                                <div class="flex justify-between border-t border-gray-300 pt-1">
-                                    <span class="font-semibold">Total TTC :</span>
-                                    <span class="font-bold text-lg">{{ number_format($devis->total, 0, ',', ' ') }} FCFA</span>
-                                </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>

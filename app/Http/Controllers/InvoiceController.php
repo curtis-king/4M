@@ -2,107 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Agent;
 use App\Models\Client;
 use App\Models\CompanySetting;
 use App\Models\Invoice;
-use App\Models\InvoiceItem;
 use App\Models\Service;
 use App\Models\ServiceCategory;
-use App\Models\Reagent;
 use App\Services\SfecException;
 use App\Services\SfecService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
 {
-    public function dashboard()
-    {
-        $ca = Invoice::where('status', '!=', 'annulee')->sum('total');
-        $caPaye = Invoice::where('status', 'payee')->sum('total');
-        $facturesEnAttente = Invoice::whereIn('status', ['envoyee', 'partiel'])->count();
-        $facturesBrouillon = Invoice::where('status', 'brouillon')->count();
-        $nbClients = Client::count();
-        $nbFacturesMois = Invoice::whereMonth('date', now()->month)
-            ->whereYear('date', now()->year)
-            ->where('status', '!=', 'annulee')
-            ->count();
-        $caMois = Invoice::whereMonth('date', now()->month)
-            ->whereYear('date', now()->year)
-            ->where('status', '!=', 'annulee')
-            ->sum('total');
-
-        $moisPrecedent = now()->subMonthNoOverflow();
-        $caMoisPrecedent = Invoice::whereMonth('date', $moisPrecedent->month)
-            ->whereYear('date', $moisPrecedent->year)
-            ->where('status', '!=', 'annulee')
-            ->sum('total');
-        $caEvolutionPct = $caMoisPrecedent > 0
-            ? round((($caMois - $caMoisPrecedent) / $caMoisPrecedent) * 100, 1)
-            : null;
-
-        $nouveauxClientsMois = Client::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
-
-        $revenueByMonth = [];
-        $examsByMonth = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $month = now()->subMonthsNoOverflow($i);
-            $label = ucfirst($month->locale('fr')->isoFormat('MMM'));
-
-            $revenueByMonth[$label] = (float) Invoice::whereMonth('date', $month->month)
-                ->whereYear('date', $month->year)
-                ->where('status', '!=', 'annulee')
-                ->sum('total');
-
-            $examsByMonth[$label] = InvoiceItem::where('type', 'analyse')
-                ->whereHas('invoice', function ($q) use ($month) {
-                    $q->whereMonth('date', $month->month)
-                        ->whereYear('date', $month->year)
-                        ->where('status', '!=', 'annulee');
-                })
-                ->count();
-        }
-
-        $invoiceStatusStats = [
-            'payee' => [
-                'label' => 'Payées',
-                'count' => Invoice::where('status', 'payee')->count(),
-                'total' => (float) Invoice::where('status', 'payee')->sum('total'),
-            ],
-            'partiel' => [
-                'label' => 'Partielles',
-                'count' => Invoice::where('status', 'partiel')->count(),
-                'total' => (float) Invoice::where('status', 'partiel')->sum('total'),
-            ],
-            'envoyee' => [
-                'label' => 'Impayées',
-                'count' => Invoice::where('status', 'envoyee')->count(),
-                'total' => (float) Invoice::where('status', 'envoyee')->sum('total'),
-            ],
-        ];
-
-        $facturesRecents = Invoice::with([
-                'client',
-                'items',
-                'payments' => fn ($q) => $q->latest('payment_date')->limit(1),
-            ])
-            ->latest('date')
-            ->take(10)
-            ->get();
-        $stockAlertes = Reagent::whereColumn('quantity', '<=', 'min_quantity')
-            ->get();
-
-        return view('dashboard', compact(
-            'ca', 'caPaye', 'facturesEnAttente', 'facturesBrouillon',
-            'nbClients', 'nbFacturesMois', 'caMois', 'caMoisPrecedent', 'caEvolutionPct',
-            'nouveauxClientsMois', 'revenueByMonth', 'examsByMonth', 'invoiceStatusStats',
-            'facturesRecents', 'stockAlertes'
-        ));
-    }
-
     public function index(Request $request)
     {
         $query = Invoice::with(['client', 'agent', 'insuranceContract.insurer']);

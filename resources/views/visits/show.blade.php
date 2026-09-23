@@ -1,3 +1,4 @@
+@php $canFin = auth()->user()->can('view financial data'); @endphp
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
@@ -152,6 +153,7 @@
                     </dl>
                 </div>
 
+                @if ($canFin)
                 <div class="bg-white shadow-card rounded-2xl p-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Montants (FCFA)</h3>
                     <dl class="space-y-3 text-sm">
@@ -185,6 +187,7 @@
                         </div>
                     </dl>
                 </div>
+                @endif
             </div>
 
             <div class="bg-white shadow-card rounded-2xl p-6">
@@ -196,9 +199,11 @@
                                 <tr>
                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Prestation</th>
                                     <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Qté</th>
-                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Prix unit.</th>
-                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Remise</th>
-                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Net</th>
+                                    @if ($canFin)
+                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Prix unit.</th>
+                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Remise</th>
+                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Net</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -231,15 +236,17 @@
                                         @endif
                                     </td>
                                     <td class="px-4 py-2 text-right text-gray-600">{{ $line->quantity }}</td>
-                                    <td class="px-4 py-2 text-right text-gray-600">{{ number_format($line->effective_price, 0, ',', ' ') }}</td>
-                                    <td class="px-4 py-2 text-right text-gray-600">
-                                        @if ($line->discount_amount > 0)
-                                            -{{ number_format($line->discount_amount, 0, ',', ' ') }} ({{ number_format($line->discount_value, 0, ',', ' ') }}%)
-                                        @else
-                                            —
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-2 text-right font-medium text-gray-900">{{ number_format($line->line_net, 0, ',', ' ') }}</td>
+                                    @if ($canFin)
+                                        <td class="px-4 py-2 text-right text-gray-600">{{ number_format($line->effective_price, 0, ',', ' ') }}</td>
+                                        <td class="px-4 py-2 text-right text-gray-600">
+                                            @if ($line->discount_amount > 0)
+                                                -{{ number_format($line->discount_amount, 0, ',', ' ') }} ({{ number_format($line->discount_value, 0, ',', ' ') }}%)
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-2 text-right font-medium text-gray-900">{{ number_format($line->line_net, 0, ',', ' ') }}</td>
+                                    @endif
                                 </tr>
                                 @endforeach
                             </tbody>

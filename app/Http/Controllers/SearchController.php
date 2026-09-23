@@ -31,6 +31,8 @@ class SearchController extends Controller
             ->limit(5)
             ->get();
 
+        $canViewFinancial = auth()->user()->can('view financial data');
+
         return response()->json([
             'clients' => $clients->map(fn (Client $c) => [
                 'id' => $c->id,
@@ -43,7 +45,7 @@ class SearchController extends Controller
                 'id' => $i->id,
                 'number' => $i->number,
                 'client' => $i->recipient_name,
-                'total' => number_format($i->total, 0, ',', ' '),
+                'total' => $canViewFinancial ? number_format($i->total, 0, ',', ' ') : null,
                 'status' => ucfirst($i->status),
                 'url' => route('invoices.show', $i),
             ]),

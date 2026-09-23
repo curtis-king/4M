@@ -33,11 +33,33 @@ class CompanySettingController extends Controller
             'sfec_api_key' => 'nullable|string|max:500',
             'sfec_api_key_sandbox' => 'nullable|string|max:500',
             'sfec_environment' => 'required|in:production,sandbox',
+            'accounting_clients' => 'nullable|string|max:20',
+            'accounting_ventes' => 'nullable|string|max:20',
+            'accounting_tva' => 'nullable|string|max:20',
+            'accounting_caisse' => 'nullable|string|max:20',
+            'accounting_banque' => 'nullable|string|max:20',
+            'accounting_assurance' => 'nullable|string|max:20',
         ]);
 
         $settings = CompanySetting::instance();
         $settings->update($validated);
 
         return back()->with('success', 'Paramètres mis à jour avec succès.');
+    }
+
+    /**
+     * Recrée les permissions manquantes et vide le cache Spatie
+     * (débloque un utilisateur qui obtient 403 malgré ses permissions accordées).
+     */
+    public function repairAccess(\App\Services\PermissionSyncService $sync)
+    {
+        $result = $sync->sync();
+
+        return back()->with('success', sprintf(
+            'Accès réparés : %d permission(s), %d recréée(s), rôles synchronisés : %s.',
+            $result['permissions_total'],
+            $result['permissions_created'],
+            implode(', ', $result['roles_synced'])
+        ));
     }
 }

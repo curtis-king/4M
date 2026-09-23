@@ -20,6 +20,7 @@
     </div>
 
     <nav class="flex-1 space-y-1 overflow-y-auto px-4 py-6">
+        <p class="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-widest text-gray-400" :class="!sidebarHover && 'lg:hidden'">Pilotage</p>
         <a href="{{ route('dashboard') }}"
             :class="!sidebarHover && 'lg:justify-center lg:px-0'"
             class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
@@ -29,6 +30,7 @@
             <span class="whitespace-nowrap" :class="!sidebarHover && 'lg:hidden'">{{ __('Dashboard') }}</span>
         </a>
 
+        <p class="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400" :class="!sidebarHover && 'lg:hidden'">Clientèle</p>
         @canany(['view clients', 'create client'])
         <a href="{{ route('clients.index') }}"
             :class="!sidebarHover && 'lg:justify-center lg:px-0'"
@@ -40,6 +42,18 @@
         </a>
         @endcanany
 
+        @can('manage insurers')
+        <a href="{{ route('assureurs.index') }}"
+            :class="!sidebarHover && 'lg:justify-center lg:px-0'"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {{ request()->routeIs('assureurs.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+            <span class="whitespace-nowrap" :class="!sidebarHover && 'lg:hidden'">{{ __('Assureurs') }}</span>
+        </a>
+        @endcan
+
+        <p class="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-widest text-primary-600" :class="!sidebarHover && 'lg:hidden'">Facturation</p>
         @canany(['view invoices', 'create invoice'])
         <a href="{{ route('invoices.index') }}"
             :class="!sidebarHover && 'lg:justify-center lg:px-0'"
@@ -77,6 +91,32 @@
         </a>
         @endcanany
 
+        @canany(['export financial data', 'import financial data'])
+        <p class="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400" :class="!sidebarHover && 'lg:hidden'">Comptabilité</p>
+        @endcanany
+
+        @can('export financial data')
+        <a href="{{ route('finance.exports') }}"
+            :class="!sidebarHover && 'lg:justify-center lg:px-0'"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {{ request()->routeIs('finance.exports*') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span class="whitespace-nowrap" :class="!sidebarHover && 'lg:hidden'">{{ __('Export Sage') }}</span>
+        </a>
+        @endcan
+
+        @can('import financial data')
+        <a href="{{ route('finance.imports') }}"
+            :class="!sidebarHover && 'lg:justify-center lg:px-0'"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {{ request()->routeIs('finance.imports*') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+            </svg>
+            <span class="whitespace-nowrap" :class="!sidebarHover && 'lg:hidden'">{{ __('Import Excel') }}</span>
+        </a>
+        @endcan
+
         @canany(['view visits', 'create visit'])
         <a href="{{ route('visits.index') }}"
             :class="!sidebarHover && 'lg:justify-center lg:px-0'"
@@ -88,6 +128,7 @@
         </a>
         @endcanany
 
+        <p class="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400" :class="!sidebarHover && 'lg:hidden'">Laboratoire</p>
         @canany(['manage services'])
         <a href="{{ route('services.index') }}"
             :class="!sidebarHover && 'lg:justify-center lg:px-0'"
@@ -97,18 +138,6 @@
             </svg>
             <span class="whitespace-nowrap" :class="!sidebarHover && 'lg:hidden'">{{ __('Services') }}</span>
         </a>
-        @endcanany
-
-        @can('manage insurers')
-        <a href="{{ route('assureurs.index') }}"
-            :class="!sidebarHover && 'lg:justify-center lg:px-0'"
-            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {{ request()->routeIs('assureurs.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-            </svg>
-            <span class="whitespace-nowrap" :class="!sidebarHover && 'lg:hidden'">{{ __('Assureurs') }}</span>
-        </a>
-        @endcan
 
         @canany(['manage reagents'])
         <a href="{{ route('reagents.index') }}"
@@ -120,7 +149,9 @@
             <span class="whitespace-nowrap" :class="!sidebarHover && 'lg:hidden'">{{ __('Réactifs') }}</span>
         </a>
         @endcanany
+        @endcanany
 
+        <p class="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400" :class="!sidebarHover && 'lg:hidden'">Administration</p>
         @can('manage users')
         <a href="{{ route('users.index') }}"
            :class="!sidebarHover && 'lg:justify-center lg:px-0'"
@@ -129,6 +160,17 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
             </svg>
             <span class="whitespace-nowrap" :class="!sidebarHover && 'lg:hidden'">{{ __('Utilisateurs') }}</span>
+        </a>
+        @endcan
+
+        @can('manage roles')
+        <a href="{{ route('roles.index') }}"
+            :class="!sidebarHover && 'lg:justify-center lg:px-0'"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {{ request()->routeIs('roles.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+            <span class="whitespace-nowrap" :class="!sidebarHover && 'lg:hidden'">{{ __('Rôles & permissions') }}</span>
         </a>
         @endcan
 

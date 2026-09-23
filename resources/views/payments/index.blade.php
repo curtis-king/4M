@@ -1,10 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center gap-3 flex-wrap">
             <h2 class="font-semibold text-xl text-gray-900 leading-tight">Paiements</h2>
-            <a href="{{ route('invoices.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
-                Factures
-            </a>
+            <div class="flex items-center gap-2">
+                @can('export financial data')
+                <a href="{{ route('finance.exports') }}" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                    Export Sage
+                </a>
+                @endcan
+                <a href="{{ route('invoices.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                    Factures
+                </a>
+            </div>
         </div>
     </x-slot>
 

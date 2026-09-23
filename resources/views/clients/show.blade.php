@@ -1,3 +1,4 @@
+@php $canFin = auth()->user()->can('view financial data'); @endphp
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
@@ -189,8 +190,10 @@
                                         <th class="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase">N°</th>
                                         <th class="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                                         <th class="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                                        <th class="px-5 py-2.5 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-                                        <th class="px-5 py-2.5 text-right text-xs font-medium text-gray-500 uppercase">Reste</th>
+                                        @if ($canFin)
+                                            <th class="px-5 py-2.5 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                                            <th class="px-5 py-2.5 text-right text-xs font-medium text-gray-500 uppercase">Reste</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
@@ -203,10 +206,12 @@
                                         <td class="px-5 py-3">
                                             <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium {{ $invoice->status_badge }}">{{ ucfirst($invoice->status) }}</span>
                                         </td>
+                                        @if ($canFin)
                                         <td class="px-5 py-3 text-right font-medium text-gray-900">{{ number_format($invoice->total, 0, ',', ' ') }}</td>
                                         <td class="px-5 py-3 text-right {{ $invoice->amountDue > 0 ? 'text-red-600 font-medium' : 'text-gray-400' }}">
                                             {{ number_format($invoice->amountDue, 0, ',', ' ') }}
                                         </td>
+                                    @endif
                                     </tr>
                                     @endforeach
                                 </tbody>
